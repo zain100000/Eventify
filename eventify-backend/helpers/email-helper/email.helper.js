@@ -164,23 +164,84 @@ exports.sendEventCreatedEmail = async (toEmail, event, creatorName) => {
     minute: "2-digit",
   });
 
+  const eventEndDate = new Date(event.dateTime.end).toLocaleDateString(
+    "en-US",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+
+  // Get primary image if exists
+  const primaryImage =
+    event.eventImage.find((img) => img.isPrimary) || event.eventImage[0];
+  const imageHtml = primaryImage
+    ? `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img src="${primaryImage.url}" alt="${event.title}" style="max-width: 100%; height: auto; border-radius: 8px; max-height: 200px; object-fit: cover;">
+    </div>
+  `
+    : "";
+
+  // Ticket configuration info
+  const ticketInfo =
+    event.ticketConfig &&
+    event.ticketConfig.ticketTypes &&
+    event.ticketConfig.ticketTypes.length > 0
+      ? `
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+      <h4 style="color: #2d3748; margin: 0 0 10px 0; font-weight: 600;">Ticket Information</h4>
+      ${event.ticketConfig.ticketTypes
+        .map(
+          (ticket) => `
+        <p style="margin: 5px 0; color: #4a5568;">
+          <strong>${ticket.name}:</strong> $${ticket.price} (${ticket.quantity - ticket.sold} available)
+        </p>
+      `
+        )
+        .join("")}
+      ${
+        event.ticketConfig.isRegistrationRequired
+          ? '<p style="margin: 5px 0; color: #667eea; font-weight: 600;">✓ Registration Required</p>'
+          : '<p style="margin: 5px 0; color: #667eea; font-weight: 600;">✓ Open Attendance</p>'
+      }
+    </div>
+  `
+      : `
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+      <p style="margin: 0; color: #4a5568; text-align: center;">
+        ${
+          event.ticketConfig.isRegistrationRequired
+            ? "Registration required for this event"
+            : "Open attendance - no registration required"
+        }
+      </p>
+    </div>
+  `;
+
   const content = `
     <div style="text-align: center;">
-        <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">🎉 New Event Created Successfully!</h2>
+        <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">🎉 Event Created Successfully!</h2>
         
-        <div style="background: linear-gradient(135deg, #f0f4ff 0%, #e6e9ff 100%); padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+        <div style="background: linear-gradient(135deg, #f0f4ff 0%, #e6e9ff 100%); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
             <p style="color: #667eea; font-size: 18px; margin: 0; font-weight: 500;">
-                Your event "${event.title}" has been created and is now live on EVENTIFY!
+                "${event.title}" has been created successfully!
             </p>
         </div>
+
+        ${imageHtml}
         
-        <div style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: left;">
+        <div style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: left;">
             <h3 style="color: #2d3748; margin: 0 0 15px 0; font-weight: 600;">Event Details</h3>
             
             <table width="100%" style="border-collapse: collapse;">
                 <tr>
-                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600; width: 120px;">Event Title</td>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600; width: 120px;">Title</td>
                     <td style="padding: 8px 0; color: #2d3748;">${event.title}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Description</td>
+                    <td style="padding: 8px 0; color: #2d3748;">${event.description}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Category</td>
@@ -191,57 +252,86 @@ exports.sendEventCreatedEmail = async (toEmail, event, creatorName) => {
                     </td>
                 </tr>
                 <tr>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Type</td>
+                    <td style="padding: 8px 0; color: #2d3748;">
+                        <span style="background: #764ba2; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                            ${event.type}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
                     <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Date & Time</td>
-                    <td style="padding: 8px 0; color: #2d3748;">${eventDate}</td>
+                    <td style="padding: 8px 0; color: #2d3748;">
+                        ${eventDate}<br>
+                        <small style="color: #6c757d;">Ends at ${eventEndDate}</small>
+                    </td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Venue</td>
-                    <td style="padding: 8px 0; color: #2d3748;">${event.venue.name}, ${event.venue.city}</td>
+                    <td style="padding: 8px 0; color: #2d3748;">
+                        <strong>${event.venue.name}</strong><br>
+                        ${event.venue.address}, ${event.venue.city}
+                    </td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Status</td>
-                    <td style="padding: 8px 0; color: #52c41a; font-weight: 600;">${event.status}</td>
+                    <td style="padding: 8px 0;">
+                        <span style="color: ${
+                          event.status === "PUBLISHED"
+                            ? "#52c41a"
+                            : event.status === "DRAFT"
+                              ? "#fa8c16"
+                              : event.status === "CANCELLED"
+                                ? "#f5222d"
+                                : "#1890ff"
+                        }; font-weight: 600;">
+                          ${event.status}
+                        </span>
+                    </td>
                 </tr>
+                ${
+                  event.isFeatured
+                    ? `
                 <tr>
-                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600; vertical-align: top;">Description</td>
-                    <td style="padding: 8px 0; color: #2d3748;">${event.description}</td>
+                    <td style="padding: 8px 0; color: #4a5568; font-weight: 600;">Featured</td>
+                    <td style="padding: 8px 0; color: #52c41a; font-weight: 600;">⭐ Yes</td>
                 </tr>
+                `
+                    : ""
+                }
             </table>
         </div>
+
+        ${ticketInfo}
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
                 <div style="font-size: 24px; color: #667eea; margin-bottom: 8px;">📊</div>
                 <p style="margin: 0; color: #4a5568; font-size: 14px; font-weight: 600;">Manage Event</p>
-                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 12px;">Update details, tickets, and more</p>
+                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 12px;">Update details & tickets</p>
             </div>
             
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
                 <div style="font-size: 24px; color: #667eea; margin-bottom: 8px;">👥</div>
                 <p style="margin: 0; color: #4a5568; font-size: 14px; font-weight: 600;">Track Attendees</p>
-                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 12px;">Monitor registrations and sales</p>
+                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 12px;">Monitor registrations</p>
             </div>
         </div>
         
-        <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-            <p style="margin: 0; color: #667eea; font-size: 14px; text-align: center;">
-                <strong>Next Steps:</strong> Promote your event, manage ticket sales, and track attendance through your EVENTIFY dashboard.
-            </p>
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="${process.env.FRONTEND_URL}/events/${event._id}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 15px;">
-                View Event
-            </a>
-            <a href="${process.env.FRONTEND_URL}/events/${event._id}/manage" style="background: #ffffff; color: #667eea; padding: 12px 24px; text-decoration: none; border-radius: 6px; border: 1px solid #667eea; font-weight: 600; display: inline-block;">
+        <div style="text-align: center; margin-top: 25px;">
+            <a href="${process.env.FRONTEND_URL}/events/manage/${event._id}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
                 Manage Event
+            </a>
+            <a href="${process.env.FRONTEND_URL}/events/${event._id}" style="background: #ffffff; color: #667eea; padding: 12px 24px; text-decoration: none; border-radius: 6px; border: 1px solid #667eea; font-weight: 600; display: inline-block;">
+                View Event
             </a>
         </div>
         
         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 25px;">
             <p style="margin: 0; color: #6c757d; font-size: 13px; text-align: center;">
                 Created by: ${creatorName}<br>
-                Need help managing your event? Contact our support team anytime.
+                Event ID: ${event._id}<br>
+                Need assistance? Contact EVENTIFY support.
             </p>
         </div>
     </div>
@@ -251,68 +341,5 @@ exports.sendEventCreatedEmail = async (toEmail, event, creatorName) => {
     to: toEmail,
     subject: `Event Created: ${event.title}`,
     html: getEmailTemplate(content, "Event Created Successfully"),
-  });
-};
-
-/**
- * @function sendEventPublishedEmail
- * @description Sends email notification when an event is published
- */
-exports.sendEventPublishedEmail = async (toEmail, event) => {
-  const eventDate = new Date(event.dateTime.start).toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  const content = `
-    <div style="text-align: center;">
-        <h2 style="color: #52c41a; font-size: 24px; margin-bottom: 20px; font-weight: 600;">🚀 Your Event is Now Live!</h2>
-        
-        <div style="background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%); padding: 25px; border-radius: 12px; margin-bottom: 25px;">
-            <p style="color: #52c41a; font-size: 18px; margin: 0; font-weight: 500;">
-                Great news! "${event.title}" is now published and visible to attendees.
-            </p>
-        </div>
-        
-        <div style="background: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
-            <h3 style="color: #2d3748; margin: 0 0 15px 0; font-weight: 600;">Event Overview</h3>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center;">
-                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 20px; color: #667eea; margin-bottom: 8px;">📅</div>
-                    <p style="margin: 0; color: #4a5568; font-size: 14px; font-weight: 600;">Event Date</p>
-                    <p style="margin: 5px 0 0 0; color: #667eea; font-size: 12px;">${eventDate}</p>
-                </div>
-                
-                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 20px; color: #667eea; margin-bottom: 8px;">📍</div>
-                    <p style="margin: 0; color: #4a5568; font-size: 14px; font-weight: 600;">Location</p>
-                    <p style="margin: 5px 0 0 0; color: #667eea; font-size: 12px;">${event.venue.city}</p>
-                </div>
-            </div>
-        </div>
-        
-        <div style="background: #e6f7ff; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-            <p style="margin: 0; color: #1890ff; font-size: 14px; text-align: center;">
-                <strong>Promotion Tip:</strong> Share your event on social media and with your network to maximize attendance!
-            </p>
-        </div>
-        
-        <div style="text-align: center;">
-            <a href="${process.env.FRONTEND_URL}/events/${event._id}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
-                View Public Event Page
-            </a>
-        </div>
-    </div>
-  `;
-
-  return sendEmail({
-    to: toEmail,
-    subject: `Event Published: ${event.title} is Now Live!`,
-    html: getEmailTemplate(content, "Event Published"),
   });
 };
