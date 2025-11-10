@@ -63,6 +63,15 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// ==================== SERVER STARTING ENDPOINT ====================
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "BACKEND IS RUNNING",
+  });
+});
+
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "API endpoint not found" });
 });
