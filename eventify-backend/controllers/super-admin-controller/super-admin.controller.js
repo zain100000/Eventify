@@ -18,6 +18,7 @@
  */
 
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
@@ -322,6 +323,7 @@ exports.logoutSuperAdmin = async (req, res, next) => {
 /**
  * @description Controller for forgot password - Send reset link to email
  * @route POST /api/super-admin/forgot-password
+ * @access Public
  * @access Public
  */
 exports.forgotPassword = async (req, res) => {
