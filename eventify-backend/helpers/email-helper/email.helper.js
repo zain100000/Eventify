@@ -50,9 +50,9 @@ const getEmailTemplate = (content, title = "") => `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
-                            <h1 style="color: white; font-size: 28px; margin: 0; font-weight: 700; letter-spacing: 1px;">EVENTIFY</h1>
-                            <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 8px 0 0 0;">Event Management Platform</p>
+                        <td style="background: linear-gradient(135deg, #BC1611 0%, ##FFEAEA 100%); padding: 30px; text-align: center;">
+                            <img src="https://res.cloudinary.com/dd524q9vc/image/upload/v1762770676/Eventify/logo/logo_cxqnt4.png" alt="EVENTIFY" style="width: 160px; height: auto;"/>
+                            <h1 style="color: white; font-size: 24px; margin: 15px 0 0 0; font-weight: 600;">EVENTIFY</h1>
                         </td>
                     </tr>
                     
@@ -139,6 +139,10 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
         
         <p style="color: #718096; font-size: 14px; margin: 20px 0;">
             This password reset link is valid for 1 hour. If you did not request a password reset, please ignore this email.
+        </p>
+
+         <p style="color: #718096; font-size: 14px; margin: 20px 0;">
+            ${resetToken}
         </p>
     </div>
   `;
