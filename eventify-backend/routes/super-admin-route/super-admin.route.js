@@ -80,4 +80,13 @@ router.post(
   superAdminController.verifyResetToken
 );
 
+/**
+ * @description Route for update an event status.
+ */
+router.patch(
+  "/event/update-event-status/:eventId",
+  authMiddleware,
+  superAdminController.updateEventStatus
+);
+
 module.exports = router;

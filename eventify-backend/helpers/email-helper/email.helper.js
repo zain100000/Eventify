@@ -319,3 +319,65 @@ exports.sendEventCreatedEmail = async (toEmail, event, creatorName) => {
     html: getEmailTemplate(content, "Event Created Successfully"),
   });
 };
+
+/**
+ * @function sendEventStatusUpdatedEmail
+ * @description Sends email notification when an event status is updated
+ */
+exports.sendEventStatusUpdatedEmail = async (
+  toEmail,
+  event,
+  updatedBy,
+  previousStatus
+) => {
+  const statusColors = {
+    PUBLISHED: "#52c41a",
+    CANCELLED: "#f5222d",
+    COMPLETED: "#1890ff",
+    DRAFT: "#fa8c16",
+  };
+
+  const content = `
+    <div style="text-align: center;">
+      <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">📢 Event Status Updated</h2>
+      
+      <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
+        The status of your event <strong>"${event.title}"</strong> has been updated.
+      </p>
+
+      <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 25px; display: inline-block; text-align: left;">
+        <p style="margin: 0 0 10px 0; font-weight: 500; color: #2d3748;">Previous Status:
+          <span style="color: ${statusColors[previousStatus] || "#718096"}; font-weight: 600;">${previousStatus}</span>
+        </p>
+        <p style="margin: 0 0 10px 0; font-weight: 500; color: #2d3748;">New Status:
+          <span style="color: ${statusColors[event.status] || "#718096"}; font-weight: 600;">${event.status}</span>
+        </p>
+        ${
+          event.status === "CANCELLED" && event.suspensionReason
+            ? `<p style="margin: 5px 0 0 0; color: #e53e3e; font-size: 14px;">Reason: ${event.suspensionReason}</p>`
+            : ""
+        }
+      </div>
+
+      <div style="margin-top: 20px;">
+        <a href="${process.env.FRONTEND_URL}/events/${event._id}" 
+          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                 color: white; padding: 12px 24px; border-radius: 6px;
+                 text-decoration: none; font-weight: 600;">
+          View Event
+        </a>
+      </div>
+
+      <div style="margin-top: 25px; color: #6c757d; font-size: 13px;">
+        <p style="margin: 0;">Updated by: ${updatedBy}</p>
+        <p style="margin: 0;">Event ID: ${event._id}</p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to: toEmail,
+    subject: `Event Status Updated: ${event.title}`,
+    html: getEmailTemplate(content, "Event Status Updated"),
+  });
+};

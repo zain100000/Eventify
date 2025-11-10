@@ -22,6 +22,8 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
+const Event = require("../../models/event-model/event.model");
+
 const {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -35,6 +37,7 @@ const {
 } = require("../../helpers/token-helper/token.helper");
 const {
   sendPasswordResetEmail,
+  sendEventStatusUpdatedEmail,
 } = require("../../helpers/email-helper/email.helper");
 
 /**
@@ -485,5 +488,86 @@ exports.verifyResetToken = async (req, res) => {
       success: false,
       message: "Server error",
     });
+  }
+};
+
+/**
+ * @description Update event status (SUPERADMIN only)
+ * @route PATCH /api/super-admin/event/update-event-status/:eventId
+ * @access SUPERADMIN
+ */
+exports.updateEventStatus = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "SUPERADMIN") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only SUPERADMIN can update event status.",
+      });
+    }
+
+    const { eventId } = req.params;
+    const { action, reason, notes } = req.body;
+
+    const allowedActions = ["PUBLISH", "CANCEL", "COMPLETE"];
+    if (!allowedActions.includes(action)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid action. Use: PUBLISH, CANCEL, or COMPLETE",
+      });
+    }
+
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Event not found" });
+    }
+
+    const statusMap = {
+      PUBLISH: "PUBLISHED",
+      CANCEL: "CANCELLED",
+      COMPLETE: "COMPLETED",
+    };
+    const newStatus = statusMap[action];
+
+    if (event.status === newStatus) {
+      return res.status(400).json({
+        success: false,
+        message: `Event is already marked as ${newStatus}.`,
+      });
+    }
+
+    const previousStatus = event.status;
+    event.status = newStatus;
+    event.statusLog = [
+      ...(event.statusLog || []),
+      {
+        action,
+        reason: reason || null,
+        notes: notes || null,
+        changedBy: req.user._id,
+        changedAt: new Date(),
+      },
+    ];
+
+    await event.save();
+
+    // Send email notification
+    const toEmail = process.env.SUPERADMIN_EMAIL || process.env.EMAIL_USER;
+    await sendEventStatusUpdatedEmail(
+      toEmail,
+      event,
+      req.user.name || "Super Admin",
+      previousStatus
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Event status updated to ${newStatus}`,
+      event,
+    });
+  } catch (error) {
+    console.error("❌ Error updating event status:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
