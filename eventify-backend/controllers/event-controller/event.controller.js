@@ -8,6 +8,9 @@ const {
   uploadToCloudinary,
   deleteFromCloudinary,
 } = require("../../utilities/cloudinary-utility/cloudinary.utility");
+const {
+  sendEventCreatedEmail,
+} = require("../../helpers/email-helper/email.helper");
 
 /**
  * @description Controller for create new event
@@ -120,12 +123,22 @@ exports.createEvent = async (req, res) => {
 
     await newEvent.save();
 
+    // ✅ Send email notification to the SUPERADMIN (creator)
+    const creatorName = req.user.userName || "Event Organizer";
+    const creatorEmail = req.user.email;
+
+    if (creatorEmail) {
+      await sendEventCreatedEmail(creatorEmail, newEvent, creatorName);
+      console.log("📧 Event creation email sent to:", creatorEmail);
+    }
+
     res.status(201).json({
       success: true,
       message: "Event created successfully",
       event: newEvent,
     });
   } catch (error) {
+    // Cleanup Cloudinary uploads if something fails
     if (uploadedFileUrls.length > 0) {
       for (const url of uploadedFileUrls) {
         try {
@@ -137,9 +150,11 @@ exports.createEvent = async (req, res) => {
     }
 
     console.error("❌ Error creating event:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server error", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
