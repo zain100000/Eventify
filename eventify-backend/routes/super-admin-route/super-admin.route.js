@@ -29,7 +29,7 @@ const superAdminController = require("../../controllers/super-admin-controller/s
 router.post(
   "/signup-super-admin",
   profilePictureUpload.upload,
-  superAdminController.registerSuperAdmin,
+  superAdminController.registerSuperAdmin
 );
 
 /**
@@ -38,7 +38,7 @@ router.post(
 router.post(
   "/signin-super-admin",
   authLimiter,
-  superAdminController.loginSuperAdmin,
+  superAdminController.loginSuperAdmin
 );
 
 /**
@@ -47,7 +47,7 @@ router.post(
 router.get(
   "/get-super-admin-by-id/:superAdminId",
   authMiddleware,
-  superAdminController.getSuperAdminById,
+  superAdminController.getSuperAdminById
 );
 
 /**
@@ -56,7 +56,28 @@ router.get(
 router.post(
   "/logout-super-admin",
   authMiddleware,
-  superAdminController.logoutSuperAdmin,
+  superAdminController.logoutSuperAdmin
+);
+
+/**
+ * @description Route to send an email for a password reset.
+ */
+router.post("/forgot-password", superAdminController.forgotPassword);
+
+/**
+ * @description Route to reset a password using a token.
+ */
+router.post(
+  "/reset-password/:token",
+  superAdminController.resetPasswordWithToken
+);
+
+/**
+ * @description Route to verify a password reset token.
+ */
+router.post(
+  "/verify-reset-token/:token",
+  superAdminController.verifyResetToken
 );
 
 module.exports = router;
