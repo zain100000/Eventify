@@ -309,38 +309,7 @@ exports.sendEventCreatedEmail = async (toEmail, event, creatorName) => {
             </table>
         </div>
 
-        ${ticketInfo}
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; color: #667eea; margin-bottom: 8px;">📊</div>
-                <p style="margin: 0; color: #4a5568; font-size: 14px; font-weight: 600;">Manage Event</p>
-                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 12px;">Update details & tickets</p>
-            </div>
-            
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; color: #667eea; margin-bottom: 8px;">👥</div>
-                <p style="margin: 0; color: #4a5568; font-size: 14px; font-weight: 600;">Track Attendees</p>
-                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 12px;">Monitor registrations</p>
-            </div>
-        </div>
-        
-        <div style="text-align: center; margin-top: 25px;">
-            <a href="${process.env.FRONTEND_URL}/events/manage/${event._id}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
-                Manage Event
-            </a>
-            <a href="${process.env.FRONTEND_URL}/events/${event._id}" style="background: #ffffff; color: #667eea; padding: 12px 24px; text-decoration: none; border-radius: 6px; border: 1px solid #667eea; font-weight: 600; display: inline-block;">
-                View Event
-            </a>
-        </div>
-        
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 25px;">
-            <p style="margin: 0; color: #6c757d; font-size: 13px; text-align: center;">
-                Created by: ${creatorName}<br>
-                Event ID: ${event._id}<br>
-                Need assistance? Contact EVENTIFY support.
-            </p>
-        </div>
+        ${ticketInfo}                             
     </div>
   `;
 
