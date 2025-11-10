@@ -51,7 +51,7 @@ const getEmailTemplate = (content, title = "") => `
           
           <!-- Header -->
           <tr>
-            <td style="background: #ffffff; border-bottom: 1px solid #f0f0f0; text-align: center; padding: 32px 20px;">
+            <td style="background: #8E0400; border-bottom: 1px solid #f0f0f0; text-align: center; padding: 32px 20px;">
               <img src="https://res.cloudinary.com/dd524q9vc/image/upload/v1762770676/Eventify/logo/logo_cxqnt4.png" alt="EVENTIFY" style="width: 120px; height: auto; margin-bottom: 8px;" />
               <h1 style="font-size: 22px; font-weight: 700; color: #1a202c; letter-spacing: 0.5px; margin: 10px 0 0 0;">EVENTIFY</h1>
               <p style="color: #718096; font-size: 14px; margin: 6px 0 0 0;">Your trusted event management companion</p>
