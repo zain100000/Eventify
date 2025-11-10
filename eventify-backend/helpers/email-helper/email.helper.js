@@ -39,46 +39,49 @@ const getEmailTemplate = (content, title = "") => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${title}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f7f9fc;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f7f9fc;">
-        <tr>
-            <td align="center" style="padding: 40px 0;">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #BC1611 0%, ##FFEAEA 100%); padding: 30px; text-align: center;">
-                            <img src="https://res.cloudinary.com/dd524q9vc/image/upload/v1762770676/Eventify/logo/logo_cxqnt4.png" alt="EVENTIFY" style="width: 160px; height: auto;"/>
-                            <h1 style="color: white; font-size: 24px; margin: 15px 0 0 0; font-weight: 600;">EVENTIFY</h1>
-                        </td>
-                    </tr>
-                    
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 40px 30px;">
-                            ${content}
-                        </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #e9ecef;">
-                            <p style="margin: 0; color: #6c757d; font-size: 14px; line-height: 1.6;">
-                                &copy; 2024 EVENTIFY. All rights reserved.<br>
-                                <span style="font-size: 12px; color: #868e96;">
-                                    This email was sent to you as a registered user of EVENTIFY.<br>
-                                    If you believe you received this email in error, please contact our support team.
-                                </span>
-                            </p>                            
-                        </td>
-                    </tr>
-                </table>
+<body style="margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: #f5f7fa; color: #2d3748;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f5f7fa;">
+    <tr>
+      <td align="center" style="padding: 40px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 640px; background: #ffffff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: #ffffff; border-bottom: 1px solid #f0f0f0; text-align: center; padding: 32px 20px;">
+              <img src="https://res.cloudinary.com/dd524q9vc/image/upload/v1762770676/Eventify/logo/logo_cxqnt4.png" alt="EVENTIFY" style="width: 120px; height: auto; margin-bottom: 8px;" />
+              <h1 style="font-size: 22px; font-weight: 700; color: #1a202c; letter-spacing: 0.5px; margin: 10px 0 0 0;">EVENTIFY</h1>
+              <p style="color: #718096; font-size: 14px; margin: 6px 0 0 0;">Your trusted event management companion</p>
             </td>
-        </tr>
-    </table>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 32px;">
+              ${content}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background: #f9fafb; padding: 24px 32px; text-align: center; border-top: 1px solid #edf2f7;">
+              <p style="margin: 0; color: #718096; font-size: 13px; line-height: 1.6;">
+                &copy; ${new Date().getFullYear()} EVENTIFY. All rights reserved.<br>
+                <span style="font-size: 12px; color: #a0aec0;">
+                  You received this email as part of your EVENTIFY account activity.<br>
+                  If you didn’t expect this email, please contact support immediately.
+                </span>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 `;
