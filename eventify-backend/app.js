@@ -47,11 +47,15 @@ app.use((req, res, next) => {
 
 // ==================== BASE API ROUTES ====================
 const superAdminRoute = require("./routes/super-admin-route/super-admin.route.js");
+const userRoute = require("./routes/user-route/user.route.js");
 const eventRoute = require("./routes/event-route/event.route.js");
+const ticketRoute = require("./routes/ticket-route/ticket.route.js");
 
 // ==================== API MIDDLEWARES ====================
 app.use("/api/super-admin", superAdminRoute);
+app.use("/api/user", userRoute);
 app.use("/api/event", eventRoute);
+app.use("/api/ticket", ticketRoute);
 
 // ==================== SERVER MIDDLEWARES ====================
 

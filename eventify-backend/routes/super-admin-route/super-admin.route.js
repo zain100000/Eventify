@@ -89,4 +89,13 @@ router.patch(
   superAdminController.updateEventStatus
 );
 
+/**
+ * @description Route for update an booking status
+ */
+router.patch(
+  "/ticket/update-booking-status/:bookingId",
+  authMiddleware,
+  superAdminController.updateBookingStatus
+);
+
 module.exports = router;

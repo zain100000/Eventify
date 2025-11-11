@@ -22,7 +22,9 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
+const User = require("../../models/user-model/user.model");
 const Event = require("../../models/event-model/event.model");
+const TicketBooking = require("../../models/ticket-model/ticket.model");
 
 const {
   uploadToCloudinary,
@@ -38,6 +40,7 @@ const {
 const {
   sendPasswordResetEmail,
   sendEventStatusUpdatedEmail,
+  sendBookingStatusUpdateEmail,
 } = require("../../helpers/email-helper/email.helper");
 
 /**
@@ -552,7 +555,6 @@ exports.updateEventStatus = async (req, res) => {
 
     await event.save();
 
-    // Send email notification
     const toEmail = process.env.SUPERADMIN_EMAIL || process.env.EMAIL_USER;
     await sendEventStatusUpdatedEmail(
       toEmail,
@@ -568,6 +570,162 @@ exports.updateEventStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error updating event status:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+/**
+ * Update booking status (SUPERADMIN only)
+ * @route PATCH /api/super-admin/ticket/update-booking-status/:bookingId
+ * @access SUPERADMIN
+ */
+exports.updateBookingStatus = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "SUPERADMIN") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only SUPERADMIN can update booking status.",
+      });
+    }
+
+    const { bookingId } = req.params;
+    const { bookingStatus, paymentStatus, reason, notes } = req.body;
+
+    const allowedBookingStatuses = [
+      "PENDING",
+      "CONFIRMED",
+      "CANCELLED",
+      "REFUNDED",
+    ];
+    const allowedPaymentStatuses = ["PENDING", "PAID", "FAILED", "REFUNDED"];
+
+    if (bookingStatus && !allowedBookingStatuses.includes(bookingStatus)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid booking status. Use: PENDING, CONFIRMED, CANCELLED, or REFUNDED",
+      });
+    }
+
+    if (paymentStatus && !allowedPaymentStatuses.includes(paymentStatus)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid payment status. Use: PENDING, PAID, FAILED, or REFUNDED",
+      });
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const booking = await TicketBooking.findById(bookingId)
+        .populate("user event")
+        .session(session);
+      if (!booking) {
+        await session.abortTransaction();
+        return res
+          .status(404)
+          .json({ success: false, message: "Booking not found" });
+      }
+
+      const previousBookingStatus = booking.bookingStatus;
+      const previousPaymentStatus = booking.paymentStatus;
+
+      if (bookingStatus) booking.bookingStatus = bookingStatus;
+      if (paymentStatus) booking.paymentStatus = paymentStatus;
+
+      booking.statusLog = [
+        ...(booking.statusLog || []),
+        {
+          bookingStatus: {
+            from: previousBookingStatus,
+            to: bookingStatus || previousBookingStatus,
+          },
+          paymentStatus: {
+            from: previousPaymentStatus,
+            to: paymentStatus || previousPaymentStatus,
+          },
+          reason: reason || null,
+          notes: notes || null,
+          changedBy: req.user._id,
+          changedAt: new Date(),
+        },
+      ];
+
+      if (
+        previousBookingStatus !== "CONFIRMED" &&
+        bookingStatus === "CONFIRMED"
+      ) {
+        const event = await Event.findById(booking.event._id).session(session);
+        const ticket = event.ticketConfig.ticketTypes.find(
+          (t) => t.name === booking.ticketType
+        );
+
+        if (ticket) {
+          ticket.sold = (ticket.sold || 0) + booking.quantity;
+          await event.save({ session });
+        }
+      }
+
+      await booking.save({ session });
+
+      if (bookingStatus) {
+        await User.updateOne(
+          { "bookedEvents.bookingId": booking._id },
+          { $set: { "bookedEvents.$.bookingStatus": bookingStatus } },
+          { session }
+        );
+      }
+
+      await session.commitTransaction();
+
+      // Send email notification if status was changed
+      if (bookingStatus || paymentStatus) {
+        try {
+          const updates = {
+            bookingStatus: bookingStatus || previousBookingStatus,
+            paymentStatus: paymentStatus || previousPaymentStatus,
+            previousBookingStatus,
+            previousPaymentStatus,
+            reason: reason || null,
+            notes: notes || null,
+          };
+
+          await sendBookingStatusUpdateEmail(
+            booking.user.email,
+            booking,
+            booking.event,
+            booking.user,
+            updates,
+            req.user.userName || "Administrator"
+          );
+        } catch (emailError) {
+          console.error("Failed to send status update email:", emailError);
+          // Don't fail the request if email fails
+        }
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Booking status updated successfully",
+        booking: {
+          _id: booking._id,
+          bookingStatus: booking.bookingStatus,
+          paymentStatus: booking.paymentStatus,
+          user: booking.user.userName,
+          event: booking.event.title,
+          statusLog: booking.statusLog,
+        },
+      });
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    console.error("❌ Error updating booking status:", error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
