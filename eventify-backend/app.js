@@ -2,13 +2,26 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const http = require("http");
 require("dotenv").config();
 
 const {
   securityMiddleware,
 } = require("./middlewares/security-middleware/security.middleware.js");
+const {
+  initializeSocket,
+} = require("./utilities/socket-utility/socket.utility.js");
+
+const {
+  initializeChatSocket,
+} = require("./controllers/chat-controller/chat.controller.js");
 
 const app = express();
+const server = http.createServer(app);
+const io = initializeSocket(server);
+
+// Initialize chat socket handlers
+initializeChatSocket(io);
 
 securityMiddleware(app);
 app.use(cookieParser());
@@ -48,12 +61,15 @@ app.use((req, res, next) => {
 // ==================== BASE API ROUTES ====================
 const superAdminRoute = require("./routes/super-admin-route/super-admin.route.js");
 const userRoute = require("./routes/user-route/user.route.js");
+const organizerRoute = require("./routes/organizer-route/organizer.route.js");
 const eventRoute = require("./routes/event-route/event.route.js");
 const ticketRoute = require("./routes/ticket-route/ticket.route.js");
 
 // ==================== API MIDDLEWARES ====================
 app.use("/api/super-admin", superAdminRoute);
 app.use("/api/user", userRoute);
+app.use("/api/organizer", organizerRoute);
+app.use("/api/organizer", userRoute);
 app.use("/api/event", eventRoute);
 app.use("/api/ticket", ticketRoute);
 
@@ -87,7 +103,7 @@ mongoose
   })
   .then(() => {
     console.log("Connected to MongoDB successfully!");
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log(`Server is running on port ${process.env.PORT}`);
     });
   })

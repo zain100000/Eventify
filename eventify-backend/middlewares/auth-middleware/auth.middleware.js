@@ -16,6 +16,7 @@
 const jwt = require("jsonwebtoken");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
 const User = require("../../models/user-model/user.model");
+const Organizer = require("../../models/organizer-model/organizer.model");
 const { rateLimit } = require("express-rate-limit");
 const crypto = require("crypto");
 
@@ -107,6 +108,10 @@ exports.authMiddleware = async (req, res, next) => {
 
       case "USER":
         userModel = User;
+        break;
+
+      case "ORGANIZER":
+        userModel = Organizer;
         break;
 
       default:

@@ -14,11 +14,10 @@ const {
 } = require("../../helpers/email-helper/email.helper");
 
 /**
- * @description Controller for create new event
+ * @description Controller for creating a new event with organizer booking
  * @route POST /api/event/create-event
  * @access SUPERADMIN / USER
  */
-
 exports.createEvent = async (req, res) => {
   let uploadedFileUrls = [];
 
@@ -42,12 +41,29 @@ exports.createEvent = async (req, res) => {
       isFeatured,
       primaryIndex,
       captions,
+      organizerId, // <-- NEW: user selects an organizer
     } = req.body;
 
-    if (!title || !description || !category || !type || !venue || !dateTime) {
+    if (
+      !title ||
+      !description ||
+      !category ||
+      !type ||
+      !venue ||
+      !dateTime ||
+      !organizerId
+    ) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
+    }
+
+    const Organizer = require("../../models/organizer-model/organizer.model");
+    const organizer = await Organizer.findById(organizerId);
+    if (!organizer) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Organizer not found" });
     }
 
     const parsedVenue = typeof venue === "string" ? JSON.parse(venue) : venue;
@@ -60,13 +76,10 @@ exports.createEvent = async (req, res) => {
 
     const startDate = new Date(parsedDateTime.start?.trim());
     const endDate = new Date(parsedDateTime.end?.trim());
-
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Invalid date format. Use ISO format like: 2025-12-20T12:00:00.000Z",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid date format" });
     }
 
     const cleanedCategory = category.trim().toUpperCase();
@@ -77,6 +90,7 @@ exports.createEvent = async (req, res) => {
       parsedTicketConfig?.isRegistrationRequired === "true" ||
       parsedTicketConfig?.isRegistrationRequired === true;
 
+    // Upload event images
     let eventImage = [];
     if (req.files?.eventImage) {
       const filesToUpload = req.files.eventImage.slice(0, 5);
@@ -95,7 +109,7 @@ exports.createEvent = async (req, res) => {
         eventImage.push({
           url: uploadResult.url,
           publicId: uploadResult.publicId,
-          caption: caption,
+          caption,
           isPrimary: Number(primaryIndex) === i,
         });
       }
@@ -111,10 +125,7 @@ exports.createEvent = async (req, res) => {
         address: parsedVenue.address?.trim(),
         city: parsedVenue.city?.trim(),
       },
-      dateTime: {
-        start: startDate,
-        end: endDate,
-      },
+      dateTime: { start: startDate, end: endDate },
       ticketConfig: {
         ...parsedTicketConfig,
         isRegistrationRequired: parsedIsRegistrationRequired,
@@ -122,29 +133,36 @@ exports.createEvent = async (req, res) => {
       status: cleanedStatus,
       isFeatured: parsedIsFeatured,
       eventImage,
-      organizer: req.user._id || req.user.id,
+      organizer: organizer._id, // <-- assign selected organizer
+      createdBy: req.user._id,
     });
 
     await newEvent.save();
 
-    const registeredUsers = await User.find({});
+    // Update organizer's bookedEvents array
+    organizer.bookedEvents.push({
+      eventId: newEvent._id,
+      userId: req.user._id,
+      status: "PENDING",
+    });
+    await organizer.save();
+
+    // Optional: send email notifications to all users
+    const registeredUsers = await User.find({ email: { $exists: true } });
     for (const user of registeredUsers) {
-      if (user.email) {
-        try {
-          await sendEventCreatedEmail(user.email, newEvent, user.userName);
-          console.log(`📧 Event creation email sent to: ${user.email}`);
-        } catch (emailError) {
-          console.error(
-            `Failed to send event email to ${user.email}:`,
-            emailError
-          );
-        }
+      try {
+        await sendEventCreatedEmail(user.email, newEvent, user.userName);
+      } catch (emailError) {
+        console.error(
+          `Failed to send event email to ${user.email}:`,
+          emailError
+        );
       }
     }
 
     res.status(201).json({
       success: true,
-      message: "Event created successfully and notifications sent",
+      message: "Event created successfully!",
       event: newEvent,
     });
   } catch (error) {
@@ -159,11 +177,9 @@ exports.createEvent = async (req, res) => {
     }
 
     console.error("❌ Error creating event:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
