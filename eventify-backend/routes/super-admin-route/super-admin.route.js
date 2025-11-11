@@ -107,4 +107,22 @@ router.get(
   superAdminController.getAllBookings
 );
 
+/**
+ * @description Route to get all users.
+ */
+router.get(
+  "/user/get-all-users",
+  authMiddleware,
+  superAdminController.getAllUsers
+);
+
+/**
+ * @description Route to get all organizers.
+ */
+router.get(
+  "/organizer/get-all-organizers",
+  authMiddleware,
+  superAdminController.getAllOrganizers
+);
+
 module.exports = router;

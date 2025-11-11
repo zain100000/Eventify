@@ -199,7 +199,7 @@ exports.getAllEvents = async (req, res) => {
     if (isFeatured !== undefined) filter.isFeatured = isFeatured === "true";
 
     const events = await Event.find(filter)
-      .populate("organizer", "_id name email role")
+      .populate("organizer")
       .sort({ "dateTime.start": 1 });
 
     res.status(200).json({
