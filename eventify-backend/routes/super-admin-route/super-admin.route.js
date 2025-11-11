@@ -98,4 +98,13 @@ router.patch(
   superAdminController.updateBookingStatus
 );
 
+/**
+ * @description Route to get all bookings.
+ */
+router.get(
+  "/get-all-bookings",
+  authMiddleware,
+  superAdminController.getAllBookings
+);
+
 module.exports = router;

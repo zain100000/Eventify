@@ -680,7 +680,6 @@ exports.updateBookingStatus = async (req, res) => {
 
       await session.commitTransaction();
 
-      // Send email notification if status was changed
       if (bookingStatus || paymentStatus) {
         try {
           const updates = {
@@ -702,7 +701,6 @@ exports.updateBookingStatus = async (req, res) => {
           );
         } catch (emailError) {
           console.error("Failed to send status update email:", emailError);
-          // Don't fail the request if email fails
         }
       }
 
@@ -727,5 +725,39 @@ exports.updateBookingStatus = async (req, res) => {
   } catch (error) {
     console.error("❌ Error updating booking status:", error);
     res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+/**
+ * @description Controller to get all ticket bookings
+ * @route GET /api/ticket/get-all-bookings
+ * @access Admin / SUPERADMIN
+ */
+exports.getAllBookings = async (req, res) => {
+  try {
+    if (!req.user || !["ADMIN", "SUPERADMIN"].includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only Admins or Superadmins can view bookings.",
+      });
+    }
+
+    const bookings = await TicketBooking.find()
+      .populate("user", "userName email")
+      .populate("event", "title dateTime venue")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "All bookings fetched successfully",
+      total: bookings.length,
+      bookings,
+    });
+  } catch (error) {
+    console.error("Get all bookings error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch bookings",
+    });
   }
 };

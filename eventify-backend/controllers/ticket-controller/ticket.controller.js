@@ -7,7 +7,9 @@
  * @requires mongoose
  */
 
-const { sendTicketBookingEmail } = require("../../helpers/email-helper/email.helper");
+const {
+  sendTicketBookingEmail,
+} = require("../../helpers/email-helper/email.helper");
 const Event = require("../../models/event-model/event.model");
 const TicketBooking = require("../../models/ticket-model/ticket.model");
 const User = require("../../models/user-model/user.model");
@@ -26,7 +28,6 @@ exports.bookTicket = async (req, res) => {
     if (!eventId || !ticketType || !quantity || quantity < 1)
       return res.status(400).json({ success: false, message: "Invalid input" });
 
-    // Validate user exists and has required fields
     if (!user || !user.id) {
       return res
         .status(401)
@@ -61,7 +62,6 @@ exports.bookTicket = async (req, res) => {
     session.startTransaction();
 
     try {
-      // Create booking
       const booking = await TicketBooking.create(
         [
           {
@@ -81,11 +81,9 @@ exports.bookTicket = async (req, res) => {
         { session }
       );
 
-      // Update ticket sold count
       ticket.sold = (ticket.sold || 0) + quantity;
       await event.save({ session });
 
-      // Update user's bookedEvents
       await User.findByIdAndUpdate(
         user.id,
         {
@@ -106,7 +104,6 @@ exports.bookTicket = async (req, res) => {
 
       await session.commitTransaction();
 
-      // Send booking confirmation email
       try {
         const userDetails = await User.findById(user.id);
         await sendTicketBookingEmail(
@@ -117,7 +114,6 @@ exports.bookTicket = async (req, res) => {
         );
       } catch (emailError) {
         console.error("Failed to send booking email:", emailError);
-        // Don't fail the booking if email fails
       }
 
       return res.status(201).json({
@@ -187,3 +183,4 @@ exports.cancelBooking = async (req, res) => {
       .json({ success: false, message: "Failed to cancel booking" });
   }
 };
+
