@@ -4,6 +4,7 @@
  */
 
 const Event = require("../../models/event-model/event.model");
+const User = require("../../models/user-model/user.model");
 const {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -22,7 +23,10 @@ exports.createEvent = async (req, res) => {
   let uploadedFileUrls = [];
 
   try {
-    if (!req.user || req.user.role !== "SUPERADMIN") {
+    if (
+      !req.user ||
+      (req.user.role !== "SUPERADMIN" && req.user.role !== "USER")
+    ) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
@@ -123,22 +127,27 @@ exports.createEvent = async (req, res) => {
 
     await newEvent.save();
 
-    // ✅ Send email notification to the SUPERADMIN (creator)
-    const creatorName = req.user.userName || "Event Organizer";
-    const creatorEmail = req.user.email;
-
-    if (creatorEmail) {
-      await sendEventCreatedEmail(creatorEmail, newEvent, creatorName);
-      console.log("📧 Event creation email sent to:", creatorEmail);
+    const registeredUsers = await User.find({});
+    for (const user of registeredUsers) {
+      if (user.email) {
+        try {
+          await sendEventCreatedEmail(user.email, newEvent, user.userName);
+          console.log(`📧 Event creation email sent to: ${user.email}`);
+        } catch (emailError) {
+          console.error(
+            `Failed to send event email to ${user.email}:`,
+            emailError
+          );
+        }
+      }
     }
 
     res.status(201).json({
       success: true,
-      message: "Event created successfully",
+      message: "Event created successfully and notifications sent",
       event: newEvent,
     });
   } catch (error) {
-    // Cleanup Cloudinary uploads if something fails
     if (uploadedFileUrls.length > 0) {
       for (const url of uploadedFileUrls) {
         try {
