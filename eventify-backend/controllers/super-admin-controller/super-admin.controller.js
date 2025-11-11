@@ -23,6 +23,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
 const User = require("../../models/user-model/user.model");
+const Organizer = require("../../models/organizer-model/organizer.model");
 const Event = require("../../models/event-model/event.model");
 const TicketBooking = require("../../models/ticket-model/ticket.model");
 
@@ -730,7 +731,7 @@ exports.updateBookingStatus = async (req, res) => {
 
 /**
  * @description Controller to get all ticket bookings
- * @route GET /api/ticket/get-all-bookings
+ * @route GET /api/super-admin/ticket/get-all-bookings
  * @access Admin / SUPERADMIN
  */
 exports.getAllBookings = async (req, res) => {
@@ -759,5 +760,51 @@ exports.getAllBookings = async (req, res) => {
       success: false,
       message: "Failed to fetch bookings",
     });
+  }
+};
+
+/**
+ * @description Controller to get all organizers
+ * @route GET /api/super-admin/organizer/get-all-organizers
+ * @access Private
+ */
+exports.getAllOrganizers = async (req, res) => {
+  try {
+    const organizers = await Organizer.find()
+      .select("-password -__v -passwordResetToken -passwordResetExpires")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Organizers fetched successfully!",
+      organizers,
+      count: organizers.length,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching organizers:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+/**
+ * @description Controller to get all organizers
+ * @route GET /api/super-admin/user/get-all-users
+ * @access Private
+ */
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .select("-password -__v -passwordResetToken -passwordResetExpires")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Users fetched successfully!",
+      users,
+      count: users.length,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching organizers:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
