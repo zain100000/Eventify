@@ -102,7 +102,7 @@ router.patch(
  * @description Route to get all bookings.
  */
 router.get(
-  "/get-all-bookings",
+  "/ticket/get-all-bookings",
   authMiddleware,
   superAdminController.getAllBookings
 );
