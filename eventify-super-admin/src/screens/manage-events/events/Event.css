@@ -19,6 +19,10 @@
   gap: 16px;
 }
 
+#events .events-header .btn-container {
+  margin-top: -24px;
+}
+
 #events .events-title {
   font-size: 28px;
   font-weight: 700;
@@ -176,6 +180,15 @@
 #events .action-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#events .edit-detail-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(233, 230, 67, 0.95),
+    rgba(140, 170, 29, 0.8)
+  );
+  color: var(--white);
 }
 
 #events .view-detail-btn {

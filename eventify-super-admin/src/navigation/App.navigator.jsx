@@ -42,6 +42,12 @@ import OrganizerDetails from "../screens/manage-organizers/organizer-details/Org
 // Events Screens
 import Events from "../screens/manage-events/events/Event";
 import EventDetails from "../screens/manage-events/event-details/Event.details";
+import CreateEvent from "../screens/manage-events/create-event/Create.event";
+import UpdateEvent from "../screens/manage-events/update-event/Update.event";
+
+// Bookings Screens
+import Bookings from "../screens/manage-bookings/bookings/Bookings";
+import BookingDetails from "../screens/manage-bookings/booking-details/Booking.details";
 
 /**
  * Application routing configuration.
@@ -90,6 +96,21 @@ const AppNavigator = () => {
         <Route
           path="events/manage-events/event-details/:id"
           element={<EventDetails />}
+        />
+        <Route
+          path="events/manage-events/create-event"
+          element={<CreateEvent />}
+        />
+        <Route
+          path="events/manage-events/update-event/:id"
+          element={<UpdateEvent />}
+        />
+
+        {/* Booking Routes */}
+        <Route path="bookings/manage-bookings" element={<Bookings />} />
+        <Route
+          path="bookings/manage-bookings/booking-details/:id"
+          element={<BookingDetails />}
         />
       </Route>
 

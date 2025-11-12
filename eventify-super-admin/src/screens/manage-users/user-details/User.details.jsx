@@ -19,13 +19,13 @@ const UserDetails = () => {
   const getRoleColor = (role) => {
     switch (role) {
       case "SUPER_ADMIN":
-        return "#FF6B35"; // Orange Red
+        return "#FF6B35";
       case "ADMIN":
-        return "#4169E1"; // Royal Blue
+        return "#4169E1";
       case "ORGANIZER":
-        return "#4CAF50"; // Green
+        return "#4CAF50";
       case "USER":
-        return "#6A5ACD"; // Slate Blue
+        return "#6A5ACD";
       default:
         return "#808080";
     }
@@ -36,10 +36,7 @@ const UserDetails = () => {
     return new Date(dateString).toLocaleString();
   };
 
-  const formatEmail = (email) => {
-    if (!email) return "N/A";
-    return email;
-  };
+  const formatEmail = (email) => email || "N/A";
 
   if (loading) {
     return (
@@ -58,8 +55,8 @@ const UserDetails = () => {
       <div className="scroll-container">
         <h2 className="user-title">User Details</h2>
 
+        {/* Profile & Info */}
         <div className="content-container">
-          {/* User Profile Picture Section */}
           <div className="user-image-container">
             <img
               src={user?.profilePicture || "/default-avatar.png"}
@@ -69,7 +66,6 @@ const UserDetails = () => {
             />
           </div>
 
-          {/* User Info Section */}
           <div className="details-container">
             <div className="details-table">
               <div className="detail-row">
@@ -105,8 +101,6 @@ const UserDetails = () => {
               </div>
 
               <div className="detail-row">
-                <div className="detail-label">Login Attempts</div>
-                <div className="detail-value">{user.loginAttempts || 0}</div>
                 <div className="detail-label">Account Status</div>
                 <div className="detail-value">
                   <span
@@ -123,83 +117,52 @@ const UserDetails = () => {
           </div>
         </div>
 
-        {/* Events Information Section */}
+        {/* Booked Events */}
         <div className="user-events-container">
-          <h3 className="user-events-title">Events Information</h3>
+          <h3 className="user-events-title">Booked Events</h3>
           <div className="events-table">
             <div className="events-header">
-              <div className="header-cell">Organized Events</div>
-              <div className="header-cell">Booked Events</div>
+              <div className="header-cell">Event</div>
+              <div className="header-cell">Date</div>
+              <div className="header-cell">Venue</div>
+              <div className="header-cell">Ticket Type</div>
+              <div className="header-cell">Quantity</div>
+              <div className="header-cell">Booking Status</div>
             </div>
 
-            <div className="events-row">
-              <div className="events-cell">
-                {user.organizedEvents?.length > 0 ? (
-                  <div className="events-list">
-                    {user.organizedEvents.map((event, index) => (
-                      <div key={index} className="event-item">
-                        {event.title || `Event ${index + 1}`}
-                      </div>
-                    ))}
+            {user.bookedEvents?.length > 0 ? (
+              user.bookedEvents.map((booking, index) => {
+                const event = booking.eventId;
+                return (
+                  <div key={index} className="events-row">
+                    <div className="events-cell">
+                      {event?.title || `Event ${index + 1}`}
+                    </div>
+                    <div className="events-cell">
+                      {event?.dateTime?.start
+                        ? new Date(event.dateTime.start).toLocaleDateString()
+                        : "N/A"}
+                    </div>
+                    <div className="events-cell">
+                      {event?.venue?.name || "N/A"}
+                    </div>
+                    <div className="events-cell">
+                      {booking.ticketType || "N/A"}
+                    </div>
+                    <div className="events-cell">{booking.quantity || 0}</div>
+                    <div className="events-cell">
+                      {booking.bookingStatus || "N/A"}
+                    </div>
                   </div>
-                ) : (
-                  <span className="no-data">No organized events</span>
-                )}
-              </div>
-              <div className="events-cell">
-                {user.bookedEvents?.length > 0 ? (
-                  <div className="events-list">
-                    {user.bookedEvents.map((event, index) => (
-                      <div key={index} className="event-item">
-                        {event.title || `Event ${index + 1}`}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
+                );
+              })
+            ) : (
+              <div className="events-row">
+                <div className="events-cell" colSpan="6">
                   <span className="no-data">No booked events</span>
-                )}
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Information Section */}
-        <div className="user-additional-container">
-          <h3 className="user-additional-title">Additional Information</h3>
-          <div className="additional-table">
-            <div className="additional-header">
-              <div className="header-cell">Field</div>
-              <div className="header-cell">Value</div>
-            </div>
-
-            <div className="additional-row">
-              <div className="additional-cell additional-label">Session ID</div>
-              <div className="additional-cell additional-value">
-                {user.sessionId ? (
-                  <code className="session-id">
-                    {user.sessionId.substring(0, 20)}...
-                  </code>
-                ) : (
-                  "N/A"
-                )}
-              </div>
-            </div>
-
-            <div className="additional-row">
-              <div className="additional-cell additional-label">
-                Last Updated
-              </div>
-              <div className="additional-cell additional-value">
-                {formatDate(user.updatedAt)}
-              </div>
-            </div>
-
-            <div className="additional-row">
-              <div className="additional-cell additional-label">Lock Until</div>
-              <div className="additional-cell additional-value">
-                {user.lockUntil ? formatDate(user.lockUntil) : "Not Locked"}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

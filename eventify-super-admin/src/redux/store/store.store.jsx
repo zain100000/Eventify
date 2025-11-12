@@ -20,6 +20,7 @@ import superAdminReducer from "../slices/super-admin.slice";
 import userReducer from "../slices/user.slice";
 import organizerReducer from "../slices/organizer.slice";
 import eventReducer from "../slices/event.slice";
+import bookingReducer from "../slices/ticket-booking.slice";
 
 /**
  * A wrapper around localStorage to provide async-like
@@ -64,7 +65,7 @@ const rootReducer = combineReducers({
   users: userReducer,
   organizers: organizerReducer,
   events: eventReducer,
-  events: eventReducer,
+  bookings: bookingReducer,
 });
 
 /**

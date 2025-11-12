@@ -10,7 +10,6 @@
 const CONFIG = {
   /** Base URL for backend API requests */
   BACKEND_API_URL: "http://localhost:8000/api",
-  // BACKEND_API_URL: "https://libris-vault-backend.onrender.com/api",
 };
 
 export default CONFIG;

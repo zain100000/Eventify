@@ -19,13 +19,13 @@ const OrganizerDetails = () => {
   const getRoleColor = (role) => {
     switch (role) {
       case "SUPER_ADMIN":
-        return "#FF6B35"; // Orange Red
+        return "#FF6B35";
       case "ADMIN":
-        return "#4169E1"; // Royal Blue
+        return "#4169E1";
       case "ORGANIZER":
-        return "#4CAF50"; // Green
+        return "#4CAF50";
       case "USER":
-        return "#6A5ACD"; // Slate Blue
+        return "#6A5ACD";
       default:
         return "#808080";
     }
@@ -62,7 +62,10 @@ const OrganizerDetails = () => {
           {/* Organizer Profile Picture Section */}
           <div className="organizer-image-container">
             <img
-              src={organizer?.organizerProfile?.profilePicture || "/default-avatar.png"}
+              src={
+                organizer?.organizerProfile?.profilePicture ||
+                "/default-avatar.png"
+              }
               alt={organizer.userName}
               className="organizer-image"
               onError={(e) => (e.target.src = "/default-avatar.png")}
@@ -99,23 +102,17 @@ const OrganizerDetails = () => {
 
               <div className="detail-row">
                 <div className="detail-label">Account Created</div>
-                <div className="detail-value">{formatDate(organizer.createdAt)}</div>
-                <div className="detail-label">Last Login</div>
-                <div className="detail-value">{formatDate(organizer.lastLogin)}</div>
+                <div className="detail-value">
+                  {formatDate(organizer.createdAt)}
+                </div>
               </div>
 
               <div className="detail-row">
-                <div className="detail-label">Login Attempts</div>
-                <div className="detail-value">{organizer.loginAttempts || 0}</div>
-                <div className="detail-label">Account Status</div>
+                <div className="detail-label">Bio</div>
+
                 <div className="detail-value">
-                  <span
-                    className="status-badge"
-                    style={{
-                      backgroundColor: organizer.lockUntil ? "#FF0000" : "#4CAF50",
-                    }}
-                  >
-                    {organizer.lockUntil ? "Locked" : "Active"}
+                  <span>
+                    {organizer.organizerProfile?.bio || "No bio provided"}
                   </span>
                 </div>
               </div>
@@ -136,11 +133,13 @@ const OrganizerDetails = () => {
               <div className="services-cell">
                 {organizer.organizerProfile?.services?.length > 0 ? (
                   <div className="services-list">
-                    {organizer.organizerProfile.services.map((service, index) => (
-                      <div key={index} className="service-item">
-                        {service}
-                      </div>
-                    ))}
+                    {organizer.organizerProfile.services.map(
+                      (service, index) => (
+                        <div key={index} className="service-item">
+                          {service}
+                        </div>
+                      )
+                    )}
                   </div>
                 ) : (
                   <span className="no-data">No services provided</span>
@@ -160,75 +159,28 @@ const OrganizerDetails = () => {
           <h3 className="organizer-events-title">Events Information</h3>
           <div className="events-table">
             <div className="events-header">
-              <div className="header-cell">Organized Events</div>
+              <div className="header-cell">Booked Events</div>
               <div className="header-cell">Events Count</div>
             </div>
 
             <div className="events-row">
               <div className="events-cell">
-                {organizer.organizedEvents?.length > 0 ? (
+                {organizer.bookedEvents?.length > 0 ? (
                   <div className="events-list">
-                    {organizer.organizedEvents.map((event, index) => (
+                    {organizer.bookedEvents.map((booking, index) => (
                       <div key={index} className="event-item">
-                        {event.title || `Event ${index + 1}`}
+                        {booking.eventId?.title || `Event ${index + 1}`}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <span className="no-data">No organized events</span>
+                  <span className="no-data">No booked events</span>
                 )}
               </div>
               <div className="events-cell">
                 <div className="event-count">
-                  {organizer.organizedEvents?.length || 0}
+                  {organizer.bookedEvents?.length || 0}
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Information Section */}
-        <div className="organizer-additional-container">
-          <h3 className="organizer-additional-title">Additional Information</h3>
-          <div className="additional-table">
-            <div className="additional-header">
-              <div className="header-cell">Field</div>
-              <div className="header-cell">Value</div>
-            </div>
-
-            <div className="additional-row">
-              <div className="additional-cell additional-label">Session ID</div>
-              <div className="additional-cell additional-value">
-                {organizer.sessionId ? (
-                  <code className="session-id">
-                    {organizer.sessionId.substring(0, 20)}...
-                  </code>
-                ) : (
-                  "N/A"
-                )}
-              </div>
-            </div>
-
-            <div className="additional-row">
-              <div className="additional-cell additional-label">
-                Last Updated
-              </div>
-              <div className="additional-cell additional-value">
-                {formatDate(organizer.updatedAt)}
-              </div>
-            </div>
-
-            <div className="additional-row">
-              <div className="additional-cell additional-label">Lock Until</div>
-              <div className="additional-cell additional-value">
-                {organizer.lockUntil ? formatDate(organizer.lockUntil) : "Not Locked"}
-              </div>
-            </div>
-
-            <div className="additional-row">
-              <div className="additional-cell additional-label">Bio</div>
-              <div className="additional-cell additional-value">
-                {organizer.organizerProfile?.bio || "No bio provided"}
               </div>
             </div>
           </div>

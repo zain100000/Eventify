@@ -772,6 +772,32 @@ exports.getAllOrganizers = async (req, res) => {
   try {
     const organizers = await Organizer.find()
       .select("-password -__v -passwordResetToken -passwordResetExpires")
+      .populate({
+        path: "organizerProfile",
+        model: "OrganizerProfile",
+      })
+      .populate({
+        path: "bookedEvents.eventId",
+        model: "Event",
+        populate: [
+          {
+            path: "organizer",
+            populate: {
+              path: "organizerProfile",
+              model: "OrganizerProfile",
+            },
+          },
+          {
+            path: "venue",
+          },
+          {
+            path: "ticketConfig.ticketTypes",
+          },
+          {
+            path: "eventImage",
+          },
+        ],
+      })
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -795,6 +821,16 @@ exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
       .select("-password -__v -passwordResetToken -passwordResetExpires")
+      .populate({
+        path: "bookedEvents.eventId",
+        model: "Event",
+        populate: [
+          { path: "venue" }, // populate venue details
+          { path: "organizer", select: "userName email" }, // organizer info if needed
+          { path: "ticketConfig.ticketTypes" }, // ticket types
+          { path: "eventImage" }, // event images
+        ],
+      })
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -804,7 +840,7 @@ exports.getAllUsers = async (req, res) => {
       count: users.length,
     });
   } catch (error) {
-    console.error("❌ Error fetching organizers:", error);
+    console.error("❌ Error fetching users:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

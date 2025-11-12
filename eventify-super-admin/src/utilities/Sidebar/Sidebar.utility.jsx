@@ -76,9 +76,9 @@ const Sidebar = () => {
             <span>Manage Events</span>
           </NavLink>
 
-          {/* Tickets */}
+          {/* Bookings */}
           <NavLink
-            to="/super-admin/tickets/manage-tickets"
+            to="/super-admin/bookings/manage-bookings"
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
@@ -86,7 +86,7 @@ const Sidebar = () => {
             <div className="sidebar-icon">
               <i className="fas fa-ticket-alt"></i>
             </div>
-            <span>Manage Tickets</span>
+            <span>Manage Bookings</span>
           </NavLink>
         </li>
       </ul>

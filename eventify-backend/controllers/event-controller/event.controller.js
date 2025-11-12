@@ -199,7 +199,37 @@ exports.getAllEvents = async (req, res) => {
     if (isFeatured !== undefined) filter.isFeatured = isFeatured === "true";
 
     const events = await Event.find(filter)
-      .populate("organizer")
+      .populate({
+        path: "organizer",
+        populate: [
+          {
+            path: "organizerProfile",
+            model: "OrganizerProfile",
+          },
+          {
+            path: "bookedEvents.eventId",
+            model: "Event",
+            populate: [
+              {
+                path: "organizer",
+                populate: {
+                  path: "organizerProfile",
+                  model: "OrganizerProfile",
+                },
+              },
+              {
+                path: "venue",
+              },
+              {
+                path: "ticketConfig.ticketTypes",
+              },
+              {
+                path: "eventImage",
+              },
+            ],
+          },
+        ],
+      })
       .sort({ "dateTime.start": 1 });
 
     res.status(200).json({
@@ -244,55 +274,37 @@ exports.updateEvent = async (req, res) => {
 
     let updates = {};
 
-    if (req.body.title !== undefined) {
-      updates.title = req.body.title.trim();
-    }
-    if (req.body.description !== undefined) {
+    // Basic fields
+    if (req.body.title !== undefined) updates.title = req.body.title.trim();
+    if (req.body.description !== undefined)
       updates.description = req.body.description.trim();
-    }
+    if (req.body.category !== undefined) updates.category = req.body.category;
+    if (req.body.type !== undefined) updates.type = req.body.type;
+    if (req.body.organizerId !== undefined)
+      updates.organizerId = req.body.organizerId;
 
-    if (req.body.venue || req.body["venue[name]"]) {
-      let parsedVenue = {};
-
-      if (req.body.venue) {
-        parsedVenue =
-          typeof req.body.venue === "string"
-            ? JSON.parse(req.body.venue)
-            : req.body.venue;
-      } else {
-        parsedVenue = {
-          name: req.body["venue[name]"] || "",
-          address: req.body["venue[address]"] || "",
-          city: req.body["venue[city]"] || "",
-        };
-      }
-
+    // Venue
+    if (req.body.venue) {
+      const parsedVenue =
+        typeof req.body.venue === "string"
+          ? JSON.parse(req.body.venue)
+          : req.body.venue;
       updates.venue = { ...event.venue.toObject(), ...parsedVenue };
     }
 
-    if (req.body.dateTime || req.body["dateTime[start]"]) {
-      let start, end;
+    // DateTime
+    if (req.body.dateTime) {
+      const parsedDateTime =
+        typeof req.body.dateTime === "string"
+          ? JSON.parse(req.body.dateTime)
+          : req.body.dateTime;
 
-      if (req.body.dateTime) {
-        const parsedDateTime =
-          typeof req.body.dateTime === "string"
-            ? JSON.parse(req.body.dateTime)
-            : req.body.dateTime;
-
-        start = parsedDateTime.start
-          ? new Date(parsedDateTime.start.trim())
-          : event.dateTime.start;
-        end = parsedDateTime.end
-          ? new Date(parsedDateTime.end.trim())
-          : event.dateTime.end;
-      } else {
-        start = req.body["dateTime[start]"]
-          ? new Date(req.body["dateTime[start]"].trim())
-          : event.dateTime.start;
-        end = req.body["dateTime[end]"]
-          ? new Date(req.body["dateTime[end]"].trim())
-          : event.dateTime.end;
-      }
+      const start = parsedDateTime.start
+        ? new Date(parsedDateTime.start)
+        : event.dateTime.start;
+      const end = parsedDateTime.end
+        ? new Date(parsedDateTime.end)
+        : event.dateTime.end;
 
       if (isNaN(start.getTime()) || isNaN(end.getTime())) {
         return res.status(400).json({
@@ -311,6 +323,36 @@ exports.updateEvent = async (req, res) => {
       updates.dateTime = { start, end };
     }
 
+    // Ticket config
+    if (req.body.ticketConfig) {
+      const parsedTicketConfig =
+        typeof req.body.ticketConfig === "string"
+          ? JSON.parse(req.body.ticketConfig)
+          : req.body.ticketConfig;
+
+      // Ensure ticket types have numeric values
+      if (parsedTicketConfig.ticketTypes?.length) {
+        parsedTicketConfig.ticketTypes = parsedTicketConfig.ticketTypes.map(
+          (t) => ({
+            ...t,
+            price: Number(t.price),
+            quantity: Number(t.quantity),
+            sold: t.sold ? Number(t.sold) : 0,
+          })
+        );
+      }
+
+      updates.ticketConfig = parsedTicketConfig;
+    }
+
+    // Featured, captions, primaryIndex
+    if (req.body.isFeatured !== undefined)
+      updates.isFeatured = req.body.isFeatured;
+    if (req.body.captions !== undefined) updates.captions = req.body.captions;
+    if (req.body.primaryIndex !== undefined)
+      updates.primaryIndex = Number(req.body.primaryIndex);
+
+    // Event images
     if (req.files?.eventImage) {
       const filesToUpload = req.files.eventImage.slice(0, 5);
       const captions = req.body.captions ? req.body.captions.split(",") : [];

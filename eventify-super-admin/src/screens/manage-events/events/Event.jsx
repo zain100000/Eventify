@@ -13,6 +13,7 @@ import { toast } from "react-hot-toast";
 import InputField from "../../../utilities/InputField/InputField.utility";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../utilities/Loader/Loader.utility";
+import Button from "../../../utilities/Button/Button.utility";
 
 const Events = () => {
   const dispatch = useDispatch();
@@ -75,6 +76,16 @@ const Events = () => {
     navigate(`/super-admin/events/manage-events/event-details/${e._id}`, {
       state: { event: e },
     });
+  };
+
+  const handleUpdateEvent = (e) => {
+    navigate(`/super-admin/events/manage-events/update-event/${e._id}`, {
+      state: { event: e },
+    });
+  };
+
+  const handleCreateEventNavigate = () => {
+    navigate("/super-admin/events/manage-events/create-event");
   };
 
   // Status change
@@ -156,6 +167,15 @@ const Events = () => {
             onChange={handleSearch}
             width={300}
           />
+
+          <div className="btn-container">
+            <Button
+              title="Event"
+              width={110}
+              onPress={handleCreateEventNavigate}
+              icon={<i className="fas fa-plus-circle"></i>}
+            />
+          </div>
         </div>
         <div className="table-responsive">
           {loading ? (
@@ -186,6 +206,13 @@ const Events = () => {
                       </span>
                     </td>
                     <td className="actions">
+                      <button
+                        className="action-btn edit-detail-btn"
+                        onClick={() => handleUpdateEvent(e)}
+                      >
+                        <i className="fas fa-pencil-alt"></i>
+                      </button>
+
                       <button
                         className="action-btn view-detail-btn"
                         onClick={() => handleViewDetail(e)}
@@ -263,7 +290,6 @@ const Events = () => {
           <p>Are you sure you want to delete this event?</p>
           <p>This action cannot be undone.</p>
         </Modal>
-        
       </div>
     </section>
   );

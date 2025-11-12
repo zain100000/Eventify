@@ -29,6 +29,35 @@ const { BACKEND_API_URL } = CONFIG;
 const getToken = () => localStorage.getItem("authToken");
 
 /**
+ * Create new event.
+ */
+export const createEvent = createAsyncThunk(
+  "events/createEvent",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const token = getToken();
+
+      const response = await axios.post(
+        `${BACKEND_API_URL}/event/create-event`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data.event;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to upload product"
+      );
+    }
+  }
+);
+
+/**
  * Fetch all events.
  */
 export const getEvents = createAsyncThunk(
@@ -48,6 +77,48 @@ export const getEvents = createAsyncThunk(
       return response.data.allEvents;
     } catch (error) {
       return rejectWithValue(error.response?.data || "An error occurred.");
+    }
+  }
+);
+
+/**
+ * Update event.
+ */
+export const updateEvent = createAsyncThunk(
+  "events/updateEvent",
+  async ({ eventId, formData }, { rejectWithValue }) => {
+    // FIXED: Properly destructure parameters
+    try {
+      const token = getToken();
+
+      console.log("🔄 Updating event with ID:", eventId);
+      console.log("📦 FormData contents:");
+
+      // Log form data entries for debugging
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      const response = await axios.patch(
+        `${BACKEND_API_URL}/event/update-event/${eventId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("✅ Update successful:", response.data);
+      return response.data.event;
+    } catch (error) {
+      console.error("❌ Update failed:", error.response?.data || error.message);
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to update event"
+      );
     }
   }
 );
@@ -93,6 +164,19 @@ const eventSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(createEvent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createEvent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.events.push(action.payload);
+      })
+      .addCase(createEvent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // Get All Events
       .addCase(getEvents.pending, (state) => {
         state.loading = true;
@@ -103,6 +187,26 @@ const eventSlice = createSlice({
         state.events = action.payload;
       })
       .addCase(getEvents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Update Event - FIXED: Update existing event instead of pushing new one
+      .addCase(updateEvent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateEvent.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update the existing event in the array
+        const index = state.events.findIndex(
+          (event) => event._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.events[index] = action.payload;
+        }
+      })
+      .addCase(updateEvent.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
