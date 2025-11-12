@@ -126,7 +126,7 @@ exports.sendOTPEmail = async (toEmail, otp) => {
  * @description Generates the email template for password reset instructions.
  */
 exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
-  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+  const resetLink = `${process.env.FRONTEND_URL}/super-admin/reset-password?token=${resetToken}`;
   const content = `
     <div style="text-align: center;">
         <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Password Reset Request</h2>
@@ -357,16 +357,7 @@ exports.sendEventStatusUpdatedEmail = async (
             ? `<p style="margin: 5px 0 0 0; color: #e53e3e; font-size: 14px;">Reason: ${event.suspensionReason}</p>`
             : ""
         }
-      </div>
-
-      <div style="margin-top: 20px;">
-        <a href="${process.env.FRONTEND_URL}/events/${event._id}" 
-          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                 color: white; padding: 12px 24px; border-radius: 6px;
-                 text-decoration: none; font-weight: 600;">
-          View Event
-        </a>
-      </div>
+      </div>      
 
       <div style="margin-top: 25px; color: #6c757d; font-size: 13px;">
         <p style="margin: 0;">Updated by: ${updatedBy}</p>
@@ -524,22 +515,7 @@ exports.sendTicketBookingEmail = async (toEmail, booking, event, user) => {
         </ul>
       </div>
 
-      <!-- Action Buttons -->
-      <div style="margin: 25px 0; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-        <a href="${process.env.FRONTEND_URL}/events/${event._id}" 
-           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                  color: white; padding: 12px 24px; border-radius: 6px;
-                  text-decoration: none; font-weight: 600; display: inline-block;">
-          View Event Details
-        </a>
-        <a href="${process.env.FRONTEND_URL}/bookings/${booking._id}" 
-           style="background: #ffffff; color: #667eea; padding: 12px 24px; border-radius: 6px;
-                  text-decoration: none; font-weight: 600; display: inline-block;
-                  border: 2px solid #667eea;">
-          Manage Booking
-        </a>
-      </div>
-
+      <!-- Action Buttons -->      
       <!-- Important Notes -->
       <div style="background: #fff2e8; border: 1px solid #ffbb96; border-radius: 8px; padding: 15px; margin-top: 20px;">
         <p style="margin: 0; color: #d46b08; font-size: 13px; text-align: left;">
@@ -780,23 +756,7 @@ exports.sendBookingStatusUpdateEmail = async (
             </td>
           </tr>
         </table>
-      </div>
-
-      <!-- Action Buttons -->
-      <div style="margin: 25px 0; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-        <a href="${process.env.FRONTEND_URL}/bookings/${booking._id}" 
-           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                  color: white; padding: 12px 24px; border-radius: 6px;
-                  text-decoration: none; font-weight: 600; display: inline-block;">
-          View Booking Details
-        </a>
-        <a href="${process.env.FRONTEND_URL}/events/${event._id}" 
-           style="background: #ffffff; color: #667eea; padding: 12px 24px; border-radius: 6px;
-                  text-decoration: none; font-weight: 600; display: inline-block;
-                  border: 2px solid #667eea;">
-          View Event
-        </a>
-      </div>
+      </div>     
 
       <!-- Support Information -->
       ${
