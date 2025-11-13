@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const getFrontendUrl = (role) => {
-  if (role === "SUPER_ADMIN") return process.env.FRONTEND_SUPERADMIN_URL;
+  if (role === "SUPERADMIN") return process.env.FRONTEND_SUPERADMIN_URL;
   if (role === "ORGANIZER") return process.env.FRONTEND_ORGANIZER_URL;
   return process.env.FRONTEND_URL; // fallback
 };

@@ -73,7 +73,7 @@ const ForgotPassword = () => {
       // Include role in the payload
       const forgotPasswordData = {
         email,
-        role: "SUPER_ADMIN", // <-- added role
+        role: "SUPERADMIN", // <-- added role
       };
 
       const resultAction = await dispatch(forgotPassword(forgotPasswordData));

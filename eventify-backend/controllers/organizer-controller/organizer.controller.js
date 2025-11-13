@@ -359,7 +359,7 @@ exports.forgotPassword = async (req, res) => {
     }
 
     let userModel;
-    if (role === "SUPER_ADMIN") userModel = SuperAdmin;
+    if (role === "SUPERADMIN") userModel = SuperAdmin;
     else if (role === "ORGANIZER") userModel = Organizer;
     else
       return res.status(400).json({
@@ -367,7 +367,7 @@ exports.forgotPassword = async (req, res) => {
         message: "Invalid role",
       });
 
-    const user = await userModel.findOne({ email: email.toLowerCase() });
+    const user = await userModel.findOne({ email });
 
     if (!user) {
       // Respond with 200 to prevent email enumeration
@@ -433,7 +433,7 @@ exports.resetPasswordWithToken = async (req, res) => {
     }
 
     let userModel;
-    if (role === "SUPER_ADMIN") userModel = SuperAdmin;
+    if (role === "SUPERADMIN") userModel = SuperAdmin;
     else if (role === "ORGANIZER") userModel = Organizer;
     else
       return res.status(400).json({

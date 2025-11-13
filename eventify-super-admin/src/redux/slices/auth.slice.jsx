@@ -93,7 +93,7 @@ export const forgotPassword = createAsyncThunk(
       // Include role in the request payload
       const emailData = {
         email,
-        role: "SUPER_ADMIN",
+        role: "SUPERADMIN",
       };
 
       const response = await axios.post(
@@ -150,7 +150,7 @@ export const resetPassword = createAsyncThunk(
       // Include role in the request payload
       const payload = {
         newPassword,
-        role: "SUPER_ADMIN",
+        role: "SUPERADMIN",
       };
 
       const response = await axios.post(

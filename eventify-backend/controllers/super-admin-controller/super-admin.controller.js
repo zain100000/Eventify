@@ -345,7 +345,7 @@ exports.forgotPassword = async (req, res) => {
     }
 
     let userModel;
-    if (role === "SUPER_ADMIN") userModel = SuperAdmin;
+    if (role === "SUPERADMIN") userModel = SuperAdmin;
     else if (role === "ORGANIZER") userModel = Organizer;
     else
       return res.status(400).json({
@@ -419,7 +419,7 @@ exports.resetPasswordWithToken = async (req, res) => {
     }
 
     let userModel;
-    if (role === "SUPER_ADMIN") userModel = SuperAdmin;
+    if (role === "SUPERADMIN") userModel = SuperAdmin;
     else if (role === "ORGANIZER") userModel = Organizer;
     else
       return res.status(400).json({
