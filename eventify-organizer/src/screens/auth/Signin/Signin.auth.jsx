@@ -182,7 +182,7 @@ const Signin = () => {
                   <div className="forgot-password-container">
                     <NavLink
                       className="fg-label"
-                      to={"/super-admin/forgot-password"}
+                      to={"/organizer/forgot-password"}
                     >
                       Forgot Password
                     </NavLink>
