@@ -5,7 +5,7 @@ import { logout } from "../../redux/slices/auth.slice";
 import { getSuperAdmin } from "../../redux/slices/super-admin.slice";
 import { toast } from "react-hot-toast";
 import Logo from "../../assets/logo/logo.png";
-import imgPlaceholder from "../../assets/placeholders/img-placeholder.png";
+import imgPlaceholder from "../../assets/placeHolders/img-placeholder.png";
 import Button from "../Button/Button.utility";
 import "../../styles/global.styles.css";
 import "./Header.utility.css";
