@@ -26,7 +26,7 @@ const Sidebar = () => {
         <li className="sidebar-container">
           {/* Dashboard */}
           <NavLink
-            to="/super-admin/dashboard"
+            to="/organizer/dashboard"
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
@@ -39,7 +39,7 @@ const Sidebar = () => {
 
           {/* Users */}
           <NavLink
-            to="/super-admin/users/manage-users"
+            to="/organizer/users/manage-users"
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
@@ -52,7 +52,7 @@ const Sidebar = () => {
 
           {/* Organizers */}
           <NavLink
-            to="/super-admin/organizers/manage-organizers"
+            to="/organizer/organizers/manage-organizers"
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
@@ -65,7 +65,7 @@ const Sidebar = () => {
 
           {/* Events */}
           <NavLink
-            to="/super-admin/events/manage-events"
+            to="/organizer/events/manage-events"
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
@@ -78,7 +78,7 @@ const Sidebar = () => {
 
           {/* Bookings */}
           <NavLink
-            to="/super-admin/bookings/manage-bookings"
+            to="/organizer/bookings/manage-bookings"
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
