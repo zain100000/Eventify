@@ -349,80 +349,138 @@ exports.logoutOrganizer = async (req, res) => {
  */
 exports.forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email)
-      return res
-        .status(400)
-        .json({ success: false, message: "Email is required" });
+    const { email, role } = req.body;
 
-    const organizer = await Organizer.findOne({ email: email.toLowerCase() });
-    if (!organizer)
-      return res
-        .status(200)
-        .json({ success: true, message: "If account exists, reset link sent" });
+    if (!email || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and role are required",
+      });
+    }
+
+    let userModel;
+    if (role === "SUPER_ADMIN") userModel = SuperAdmin;
+    else if (role === "ORGANIZER") userModel = Organizer;
+    else
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+
+    const user = await userModel.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      // Respond with 200 to prevent email enumeration
+      return res.status(200).json({
+        success: true,
+        message:
+          "If an account with that email exists, a password reset link has been sent",
+      });
+    }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
-    organizer.passwordResetToken = resetToken;
-    organizer.passwordResetExpires = Date.now() + 3600000;
-    await organizer.save();
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour
 
-    const emailSent = await sendPasswordResetEmail(email, resetToken);
-    if (!emailSent)
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to send email" });
+    user.passwordResetToken = resetToken;
+    user.passwordResetExpires = resetTokenExpiry;
+    await user.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Reset link sent successfully" });
+    const emailSent = await sendPasswordResetEmail(email, resetToken, role);
+
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send password reset email",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Link sent successfully! Please check your email",
+    });
   } catch (error) {
-    console.error("❌ Forgot password error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Error in forgot password:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
 /**
  * @description Controller to reset password with token
- * @route POST /api/organizer/reset-password/:token
+ * @route POST /api/super-admin/reset-password/:token
  * @access Public
  */
 exports.resetPasswordWithToken = async (req, res) => {
   try {
     const { token } = req.params;
-    const { newPassword } = req.body;
+    const { newPassword, role } = req.body;
 
-    if (!token || !newPassword)
-      return res
-        .status(400)
-        .json({ success: false, message: "Token and new password required" });
-    if (!passwordRegex.test(newPassword))
-      return res
-        .status(400)
-        .json({ success: false, message: "Password does not meet criteria" });
+    if (!token || !newPassword || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Token, new password, and role are required",
+      });
+    }
 
-    const organizer = await Organizer.findOne({
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character",
+      });
+    }
+
+    let userModel;
+    if (role === "SUPER_ADMIN") userModel = SuperAdmin;
+    else if (role === "ORGANIZER") userModel = Organizer;
+    else
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+
+    const user = await userModel.findOne({
       passwordResetToken: token,
       passwordResetExpires: { $gt: Date.now() },
     });
-    if (!organizer)
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid or expired reset token" });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset token",
+      });
+    }
+
+    const isSameAsCurrent = await bcrypt.compare(newPassword, user.password);
+    if (isSameAsCurrent) {
+      return res.status(400).json({
+        success: false,
+        message: "New password cannot be the same as the current password",
+      });
+    }
 
     const hashedPassword = await hashPassword(newPassword);
-    organizer.password = hashedPassword;
-    organizer.passwordResetToken = null;
-    organizer.passwordResetExpires = null;
-    organizer.sessionId = generateSecureToken();
 
-    await organizer.save();
+    user.password = hashedPassword;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    user.passwordChangedAt = new Date();
+    user.sessionId = generateSecureToken();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Password reset successfully" });
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
   } catch (error) {
-    console.error("❌ Reset password error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Error resetting password:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 

@@ -335,18 +335,28 @@ exports.logoutSuperAdmin = async (req, res, next) => {
  */
 exports.forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, role } = req.body;
 
-    if (!email) {
+    if (!email || !role) {
       return res.status(400).json({
         success: false,
-        message: "Email is required",
+        message: "Email and role are required",
       });
     }
 
-    const superAdmin = await SuperAdmin.findOne({ email: email.toLowerCase() });
+    let userModel;
+    if (role === "SUPER_ADMIN") userModel = SuperAdmin;
+    else if (role === "ORGANIZER") userModel = Organizer;
+    else
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
 
-    if (!superAdmin) {
+    const user = await userModel.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      // Respond with 200 to prevent email enumeration
       return res.status(200).json({
         success: true,
         message:
@@ -355,13 +365,13 @@ exports.forgotPassword = async (req, res) => {
     }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenExpiry = Date.now() + 3600000;
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour
 
-    superAdmin.passwordResetToken = resetToken;
-    superAdmin.passwordResetExpires = resetTokenExpiry;
-    await superAdmin.save();
+    user.passwordResetToken = resetToken;
+    user.passwordResetExpires = resetTokenExpiry;
+    await user.save();
 
-    const emailSent = await sendPasswordResetEmail(email, resetToken);
+    const emailSent = await sendPasswordResetEmail(email, resetToken, role);
 
     if (!emailSent) {
       return res.status(500).json({
@@ -391,12 +401,12 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPasswordWithToken = async (req, res) => {
   try {
     const { token } = req.params;
-    const { newPassword } = req.body;
+    const { newPassword, role } = req.body;
 
-    if (!token || !newPassword) {
+    if (!token || !newPassword || !role) {
       return res.status(400).json({
         success: false,
-        message: "Token and new password are required",
+        message: "Token, new password, and role are required",
       });
     }
 
@@ -408,22 +418,28 @@ exports.resetPasswordWithToken = async (req, res) => {
       });
     }
 
-    const superAdmin = await SuperAdmin.findOne({
+    let userModel;
+    if (role === "SUPER_ADMIN") userModel = SuperAdmin;
+    else if (role === "ORGANIZER") userModel = Organizer;
+    else
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+
+    const user = await userModel.findOne({
       passwordResetToken: token,
       passwordResetExpires: { $gt: Date.now() },
     });
 
-    if (!superAdmin) {
+    if (!user) {
       return res.status(400).json({
         success: false,
         message: "Invalid or expired reset token",
       });
     }
 
-    const isSameAsCurrent = await bcrypt.compare(
-      newPassword,
-      superAdmin.password
-    );
+    const isSameAsCurrent = await bcrypt.compare(newPassword, user.password);
     if (isSameAsCurrent) {
       return res.status(400).json({
         success: false,
@@ -433,13 +449,13 @@ exports.resetPasswordWithToken = async (req, res) => {
 
     const hashedPassword = await hashPassword(newPassword);
 
-    superAdmin.password = hashedPassword;
-    superAdmin.passwordResetToken = null;
-    superAdmin.passwordResetExpires = null;
-    superAdmin.passwordChangedAt = new Date();
-    superAdmin.sessionId = generateSecureToken();
+    user.password = hashedPassword;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    user.passwordChangedAt = new Date();
+    user.sessionId = generateSecureToken();
 
-    await superAdmin.save();
+    await user.save();
 
     res.status(200).json({
       success: true,

@@ -10,6 +10,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const getFrontendUrl = (role) => {
+  if (role === "SUPER_ADMIN") return process.env.FRONTEND_SUPERADMIN_URL;
+  if (role === "ORGANIZER") return process.env.FRONTEND_ORGANIZER_URL;
+  return process.env.FRONTEND_URL; // fallback
+};
+
 /**
  * @function sendEmail
  * @description Sends an email using the configured transporter.
@@ -125,28 +131,22 @@ exports.sendOTPEmail = async (toEmail, otp) => {
  * @function getPasswordResetEmail
  * @description Generates the email template for password reset instructions.
  */
-exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
-  const resetLink = `${process.env.FRONTEND_URL}/super-admin/reset-password?token=${resetToken}`;
-  const content = `
-    <div style="text-align: center;">
-        <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Password Reset Request</h2>
-        <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
-            We received a request to reset your EVENTIFY account password. Click the button below to create a new password:
-        </p>
-        
-        <div style="margin: 30px 0;">
-            <a href="${resetLink}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
-                Reset My Password
-            </a>
-        </div>
-        
-        <p style="color: #718096; font-size: 14px; margin: 20px 0;">
-            This password reset link is valid for 1 hour. If you did not request a password reset, please ignore this email.
-        </p>
+exports.sendPasswordResetEmail = async (toEmail, resetToken, role) => {
+  const frontendUrl = getFrontendUrl(role);
+  const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
 
-         <p style="color: #718096; font-size: 14px; margin: 20px 0;">
-            ${resetToken}
-        </p>
+  const content = `
+    <div style="text-align:center;">
+      <h2 style="color:#2d3748;font-size:24px;margin-bottom:20px;font-weight:600;">Password Reset Request</h2>
+      <p style="color:#4a5568;line-height:1.6;margin-bottom:25px;">
+        Click the button below to reset your password:
+      </p>
+      <div style="margin:30px 0;">
+        <a href="${resetLink}" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:16px 32px;text-decoration:none;border-radius:8px;font-weight:600;display:inline-block;font-size:16px;">
+          Reset My Password
+        </a>
+      </div>
+      <p style="color:#718096;font-size:14px;margin:20px 0;">This link is valid for 1 hour. If you did not request a password reset, please ignore this email.</p>
     </div>
   `;
 
