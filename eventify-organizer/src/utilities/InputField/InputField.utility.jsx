@@ -77,6 +77,7 @@ const InputField = ({
   required = false,
   multiline = false,
   rows = 3,
+  multiple = false, // NEW PROP: allow multiple selection
 }) => {
   return (
     <section id="input-field">
@@ -92,6 +93,7 @@ const InputField = ({
               value={selectedValue}
               onChange={onValueChange}
               required={required}
+              multiple={multiple} // enable multiple selection
               style={{
                 backgroundColor: bgColor || "var(--white)",
                 color: textColor || "var(--dark)",
@@ -100,9 +102,11 @@ const InputField = ({
                 ...inputStyle,
               }}
             >
-              <option value="" disabled>
-                {label || placeholder}
-              </option>
+              {!multiple && (
+                <option value="" disabled>
+                  {label || placeholder}
+                </option>
+              )}
               {dropdownOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}

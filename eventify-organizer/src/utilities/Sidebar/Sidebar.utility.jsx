@@ -35,59 +35,7 @@ const Sidebar = () => {
               <i className="fas fa-home"></i>
             </div>
             <span>Dashboard</span>
-          </NavLink>
-
-          {/* Users */}
-          <NavLink
-            to="/organizer/users/manage-users"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? "active" : ""}`
-            }
-          >
-            <div className="sidebar-icon">
-              <i className="fas fa-users"></i>
-            </div>
-            <span>Manage Users</span>
-          </NavLink>
-
-          {/* Organizers */}
-          <NavLink
-            to="/organizer/organizers/manage-organizers"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? "active" : ""}`
-            }
-          >
-            <div className="sidebar-icon">
-              <i className="fas fa-user-secret"></i>
-            </div>
-            <span>Manage Organizers</span>
-          </NavLink>
-
-          {/* Events */}
-          <NavLink
-            to="/organizer/events/manage-events"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? "active" : ""}`
-            }
-          >
-            <div className="sidebar-icon">
-              <i className="fas fa-glass-cheers"></i>
-            </div>
-            <span>Manage Events</span>
-          </NavLink>
-
-          {/* Bookings */}
-          <NavLink
-            to="/organizer/bookings/manage-bookings"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? "active" : ""}`
-            }
-          >
-            <div className="sidebar-icon">
-              <i className="fas fa-ticket-alt"></i>
-            </div>
-            <span>Manage Bookings</span>
-          </NavLink>
+          </NavLink>          
         </li>
       </ul>
     </section>

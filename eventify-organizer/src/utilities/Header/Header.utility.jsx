@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/auth.slice";
-import { getSuperAdmin } from "../../redux/slices/super-admin.slice";
+import { getOrganizer } from "../../redux/slices/organizer.slice";
 import { toast } from "react-hot-toast";
 import Logo from "../../assets/logo/logo.png";
 import imgPlaceholder from "../../assets/placeHolders/img-placeholder.png";
@@ -16,13 +16,13 @@ const Header = () => {
   const [loading, setLoading] = useState(false);
 
   const user = useSelector((state) => state.auth.user);
-  const superAdmin = useSelector((state) => state.superAdmin.superAdmin);
-  const profilePicture = superAdmin?.profilePicture || imgPlaceholder;
-  const userName = superAdmin?.userName || user?.userName || "Admin";
+  const organizer = useSelector((state) => state.organizer.organizer);
+  const profilePicture = organizer?.organizerProfile?.profilePicture || imgPlaceholder;
+  const userName = organizer?.userName || user?.userName || "Organizer";
 
   useEffect(() => {
     if (user?.id) {
-      dispatch(getSuperAdmin(user.id));
+      dispatch(getOrganizer(user.id));
     }
   }, [dispatch, user?.id]);
 

@@ -91,9 +91,9 @@ const Signin = () => {
           resultAction.payload.message || "Login successful";
         toast.success(successMessage);
 
-        // setTimeout(() => {
-        //   navigate("/super-admin/dashboard");
-        // }, 2000);
+        setTimeout(() => {
+          navigate("/organizer/dashboard");
+        }, 2000);
 
         setEmail("");
         setPassword("");
@@ -196,6 +196,17 @@ const Signin = () => {
                       loading={loading}
                       icon={<i className="fas fa-sign-in-alt"></i>}
                     />
+                  </div>
+
+                  <div className="signup-container">
+                    <div className="left-container">
+                      <label className="label">Didn't have an account?</label>
+                    </div>
+                    <div className="right-container">
+                      <NavLink to="/organizer/signup" className="signup-label">
+                        Signup
+                      </NavLink>
+                    </div>
                   </div>
                 </form>
               </div>

@@ -16,6 +16,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import { combineReducers } from "redux";
 import authReducer from "../slices/auth.slice";
+import organizerReducer from "../slices/organizer.slice";
 
 /**
  * A wrapper around localStorage to provide async-like
@@ -56,6 +57,7 @@ const persistConfig = {
  */
 const rootReducer = combineReducers({
   auth: authReducer,
+  organizer: organizerReducer,
 });
 
 /**

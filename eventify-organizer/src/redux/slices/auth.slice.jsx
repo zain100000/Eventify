@@ -26,6 +26,31 @@ import CONFIG from "../config/Config.config";
 const { BACKEND_API_URL } = CONFIG;
 
 /**
+ * Signup Organizer.
+ *
+ * @param {Object} formData - signup credentials.
+ */
+export const register = createAsyncThunk(
+  "organizer/signup-organizer",
+  async (formData, { rejectWithValue }) => {
+    try {
+      console.log("Register Request Data:", formData);
+
+      const response = await axios.post(
+        `${BACKEND_API_URL}/organizer/signup-organizer`,
+        formData
+      );
+
+      console.log("Register Response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Register Error:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+/**
  * Login an existing Organizer.
  *
  * @param {Object} loginData - Login credentials.
@@ -197,6 +222,22 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+
+      //register
+      .addCase(register.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(register.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+      })
+      .addCase(register.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // Login
       .addCase(login.pending, (state) => {
         state.loading = true;

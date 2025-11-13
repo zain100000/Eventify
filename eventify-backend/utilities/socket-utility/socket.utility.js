@@ -12,12 +12,27 @@ let io;
 const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: process.env.ALLOWED_ORIGINS?.split(",") || "*",
       methods: ["GET", "POST"],
+      credentials: true,
     },
     transports: ["websocket", "polling"],
-    pingTimeout: 20000,
+    pingTimeout: 60000, // Increased for serverless
     pingInterval: 25000,
+    path: "/socket.io/", // Explicit path for Vercel
+    // Vercel-specific configurations
+    allowEIO3: true,
+  });
+
+  // Handle WebSocket upgrades for Vercel
+  io.engine.on("initial_headers", (headers, req) => {
+    headers["Access-Control-Allow-Origin"] = process.env.ALLOWED_ORIGINS || "*";
+    headers["Access-Control-Allow-Credentials"] = "true";
+  });
+
+  io.engine.on("headers", (headers, req) => {
+    headers["Access-Control-Allow-Origin"] = process.env.ALLOWED_ORIGINS || "*";
+    headers["Access-Control-Allow-Credentials"] = "true";
   });
 
   io.use((socket, next) => {
@@ -48,8 +63,11 @@ const initializeSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
+    console.log(`User ${socket.user?.id} connected with socket ${socket.id}`);
+
     if (socket.user?.id) {
       socket.join(socket.user.id);
+      socket.join(socket.user.role); // Join role-based room
     }
 
     socket.on("disconnect", (reason) => {
@@ -58,6 +76,13 @@ const initializeSocket = (server) => {
 
     socket.on("error", (error) => {
       console.error(`Socket error for user ${socket.user?.id}:`, error);
+    });
+
+    // Health check for socket connection
+    socket.on("ping", (cb) => {
+      if (typeof cb === "function") {
+        cb({ status: "ok", timestamp: new Date().toISOString() });
+      }
     });
   });
 

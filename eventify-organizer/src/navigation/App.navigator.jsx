@@ -17,16 +17,20 @@
  */
 
 import { Routes, Route } from "react-router-dom";
-// import DashboardLayout from "./outlet/Outlet.outlet";
-// import ProtectedRoute from "./protected-routes/Protected.routes";
+import DashboardLayout from "./outlet/Outlet.outlet";
+import ProtectedRoute from "./protected-routes/Protected.routes";
 
 // Authentication
 import Signin from "../screens/auth/Signin/Signin.auth";
+import Signup from "../screens/auth/Signup/Signup.auth";
 import ForgotPassword from "../screens/auth/Forgot-password/ForgotPassword.auth";
 import ResetPassword from "../screens/auth/Reset-password/ResetPassword.auth";
 
 // Not Found
 import NotFound from "../screens/not-found/Not-Found";
+
+// Dashboard Screens
+import Dashboard from "../screens/dashboard/Main.dashboard";
 
 /**
  * Application routing configuration.
@@ -38,8 +42,25 @@ const AppNavigator = () => {
     <Routes>
       {/* Public Route */}
       <Route path="/" element={<Signin />} />
+      <Route path="/organizer/signup" element={<Signup />} />
       <Route path="/organizer/forgot-password" element={<ForgotPassword />} />
       <Route path="/organizer/reset-password" element={<ResetPassword />} />
+
+      {/* Protected Routes */}
+      <Route
+        path="/organizer"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Make dashboard the index route for /admin */}
+        <Route index element={<Dashboard />} />
+
+        {/* Dashboard Routes */}
+        <Route path="dashboard" element={<Dashboard />} />
+      </Route>
 
       {/* Not Found Route */}
       <Route path="*" element={<NotFound />} />

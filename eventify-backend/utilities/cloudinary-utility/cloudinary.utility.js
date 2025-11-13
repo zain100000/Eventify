@@ -173,3 +173,19 @@ exports.deleteFromCloudinary = async (fileUrlOrId) => {
     throw new Error("Cloudinary Deletion Failed");
   }
 };
+
+// {
+//   "version": 2,
+//   "builds": [
+//     {
+//       "src": "app.js",
+//       "use": "@vercel/node"
+//     }
+//   ],
+//   "routes": [
+//     {
+//       "src": "/(.*)",
+//       "dest": "app.js"
+//     }
+//   ]
+// }
