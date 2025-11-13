@@ -26,7 +26,7 @@ import ForgotPassword from "../screens/auth/Forgot-password/ForgotPassword.auth"
 import ResetPassword from "../screens/auth/Reset-password/ResetPassword.auth";
 
 // Not Found
-import NotFound from "../screens/Not-found/Not-Found";
+import NotFound from "../screens/not-found/Not-Found";
 
 // Dashboard Screens
 import Dashboard from "../screens/Dashboard/Main.dashboard";
