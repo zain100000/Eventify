@@ -70,7 +70,12 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const forgotPasswordData = { email };
+      // Include role in the payload
+      const forgotPasswordData = {
+        email,
+        role: "SUPER_ADMIN", // <-- added role
+      };
+
       const resultAction = await dispatch(forgotPassword(forgotPasswordData));
 
       if (forgotPassword.fulfilled.match(resultAction)) {

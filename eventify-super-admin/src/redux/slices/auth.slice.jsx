@@ -88,8 +88,14 @@ export const login = createAsyncThunk(
  */
 export const forgotPassword = createAsyncThunk(
   "super-admin/forgot-password",
-  async (emailData, { rejectWithValue }) => {
+  async (email, { rejectWithValue }) => {
     try {
+      // Include role in the request payload
+      const emailData = {
+        email,
+        role: "SUPER_ADMIN",
+      };
+
       const response = await axios.post(
         `${BACKEND_API_URL}/super-admin/forgot-password`,
         emailData
@@ -141,9 +147,15 @@ export const resetPassword = createAsyncThunk(
     try {
       const { newPassword, token } = resetData;
 
+      // Include role in the request payload
+      const payload = {
+        newPassword,
+        role: "SUPER_ADMIN",
+      };
+
       const response = await axios.post(
         `${BACKEND_API_URL}/super-admin/reset-password/${token}`,
-        { newPassword }
+        payload
       );
 
       console.log("Reset password response:", response.data);
