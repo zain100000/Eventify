@@ -88,105 +88,60 @@ export const login = createAsyncThunk(
  */
 export const forgotPassword = createAsyncThunk(
   "super-admin/forgot-password",
-  async (email, { rejectWithValue }) => {
+  async ({ email, role }, { rejectWithValue }) => {
     try {
-      // Include role in the request payload
-      const emailData = {
-        email,
-        role: "SUPERADMIN",
-      };
-
+      const payload = { email, role }; // <-- send string email
       const response = await axios.post(
         `${BACKEND_API_URL}/super-admin/forgot-password`,
-        emailData
+        payload
       );
-
-      console.log("Forgot password response:", response.data);
 
       const { message, success } = response.data;
 
       if (!success) {
-        throw new Error("Invalid forgot password response format");
+        throw new Error(message || "Forgot password failed");
       }
 
       return { message };
     } catch (error) {
-      console.error(
-        "Forgot Password Error:",
-        error.response?.data || error.message
-      );
-
       const backendError = error.response?.data;
-
-      if (backendError) {
-        return rejectWithValue({
-          message: backendError.message || "Password reset failed",
-          success: backendError.success || false,
-          status: error.response?.status,
-        });
-      }
-
       return rejectWithValue({
-        message: error.message || "Network error occurred",
-        success: false,
-        status: 0,
+        message:
+          backendError?.message || error.message || "Password reset failed",
+        success: backendError?.success || false,
+        status: error.response?.status || 0,
       });
     }
   }
 );
 
 /**
- * Reset password for Super Admin using reset token.
- *
- * @param {Object} resetData - New password and reset token.
- * @returns {Promise<{ message: string }>} Success message.
+ * Reset password for Super Admin
  */
 export const resetPassword = createAsyncThunk(
   "super-admin/reset-password",
-  async (resetData, { rejectWithValue }) => {
+  async ({ newPassword, token }, { rejectWithValue }) => {
     try {
-      const { newPassword, token } = resetData;
-
-      // Include role in the request payload
-      const payload = {
-        newPassword,
-        role: "SUPERADMIN",
-      };
-
+      const payload = { newPassword, role: "SUPERADMIN" };
       const response = await axios.post(
         `${BACKEND_API_URL}/super-admin/reset-password/${token}`,
         payload
       );
 
-      console.log("Reset password response:", response.data);
-
       const { message, success } = response.data;
 
       if (!success) {
-        throw new Error("Invalid reset password response format");
+        throw new Error(message || "Reset password failed");
       }
 
       return { message };
     } catch (error) {
-      console.error(
-        "Reset Password Error:",
-        error.response?.data || error.message
-      );
-
       const backendError = error.response?.data;
-
-      if (backendError) {
-        return rejectWithValue({
-          message: backendError.message || "Password reset failed",
-          success: backendError.success || false,
-          status: error.response?.status,
-        });
-      }
-
       return rejectWithValue({
-        message: error.message || "Network error occurred",
-        success: false,
-        status: 0,
+        message:
+          backendError?.message || error.message || "Password reset failed",
+        success: backendError?.success || false,
+        status: error.response?.status || 0,
       });
     }
   }

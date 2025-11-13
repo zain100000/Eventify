@@ -58,42 +58,31 @@ const ForgotPassword = () => {
 
     const fields = { email };
     const errors = validateFields(fields);
-    const errorKeys = Object.keys(errors);
-
-    if (errorKeys.length > 0) {
-      const firstErrorKey = errorKeys[0];
-      toast.error(errors[firstErrorKey]);
-      setLoading(false);
+    if (Object.keys(errors).length > 0) {
+      toast.error(errors.email || "Invalid email");
       return;
     }
 
     setLoading(true);
 
     try {
-      const forgotPasswordData = { email };
-      const resultAction = await dispatch(forgotPassword(forgotPasswordData));
+      // Correct payload: email is a string
+      const resultAction = await dispatch(
+        forgotPassword({ email, role: "ORGANIZER" })
+      );
 
       if (forgotPassword.fulfilled.match(resultAction)) {
-        const successMessage =
-          resultAction.payload.message ||
-          "Password reset instructions sent to your email";
-        toast.success(successMessage);
-
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
-
+        toast.success(
+          resultAction.payload.message || "Password reset email sent"
+        );
+        setTimeout(() => navigate("/"), 2000);
         setEmail("");
       } else if (forgotPassword.rejected.match(resultAction)) {
-        const errorPayload = resultAction.payload;
-
-        const errorMessage =
-          errorPayload?.message || "Request failed. Please try again.";
-        toast.error(errorMessage);
+        toast.error(resultAction.payload?.message || "Request failed");
       }
     } catch (err) {
-      console.error("An error occurred during password reset request:", err);
-      toast.error("An error occurred. Please try again.");
+      console.error("Forgot password error:", err);
+      toast.error("An unexpected error occurred");
     } finally {
       setLoading(false);
     }

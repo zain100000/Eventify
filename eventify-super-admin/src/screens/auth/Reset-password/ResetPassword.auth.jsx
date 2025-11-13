@@ -64,18 +64,15 @@ const ResetPassword = () => {
 
     const fields = { password };
     const errors = validateFields(fields);
-    const errorKeys = Object.keys(errors);
-
-    if (errorKeys.length > 0) {
-      const firstErrorKey = errorKeys[0];
-      toast.error(errors[firstErrorKey]);
-      setLoading(false);
+    if (Object.keys(errors).length > 0) {
+      toast.error(errors.password || "Invalid password");
       return;
     }
 
     setLoading(true);
 
     try {
+      // Correct payload: match resetPassword thunk structure
       const resetPasswordData = {
         newPassword: password,
         token,
@@ -84,26 +81,23 @@ const ResetPassword = () => {
       console.log("Sending reset request with:", resetPasswordData);
 
       const resultAction = await dispatch(resetPassword(resetPasswordData));
-      if (resetPassword.fulfilled.match(resultAction)) {
-        const successMessage =
-          resultAction.payload.message || "Password reset successfully!";
-        toast.success(successMessage);
 
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+      if (resetPassword.fulfilled.match(resultAction)) {
+        toast.success(
+          resultAction.payload.message || "Password reset successfully!"
+        );
 
         setPassword("");
+        setTimeout(() => navigate("/"), 2000);
       } else if (resetPassword.rejected.match(resultAction)) {
-        const errorPayload = resultAction.payload;
-
-        const errorMessage =
-          errorPayload?.message || "Password reset failed. Please try again.";
-        toast.error(errorMessage);
+        toast.error(
+          resultAction.payload?.message ||
+            "Password reset failed. Please try again."
+        );
       }
     } catch (err) {
-      console.error("An error occurred during password reset:", err);
-      toast.error("An error occurred. Please try again.");
+      console.error("Error during password reset:", err);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
