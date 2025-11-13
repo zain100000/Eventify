@@ -69,7 +69,6 @@ const ticketRoute = require("./routes/ticket-route/ticket.route.js");
 app.use("/api/super-admin", superAdminRoute);
 app.use("/api/user", userRoute);
 app.use("/api/organizer", organizerRoute);
-app.use("/api/organizer", userRoute);
 app.use("/api/event", eventRoute);
 app.use("/api/ticket", ticketRoute);
 
