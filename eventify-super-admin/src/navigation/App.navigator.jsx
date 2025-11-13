@@ -29,7 +29,7 @@ import ResetPassword from "../screens/auth/Reset-password/ResetPassword.auth";
 import NotFound from "../screens/not-found/Not-Found";
 
 // Dashboard Screens
-import Dashboard from "../screens/Dashboard/Main.dashboard";
+import Dashboard from "../screens/dashboard/Main.dashboard";
 
 // Users Screens
 import Users from "../screens/manage-users/users/User";
