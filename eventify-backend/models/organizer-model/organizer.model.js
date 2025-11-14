@@ -68,15 +68,8 @@ const organizerSchema = new mongoose.Schema(
         ticketType: String,
         quantity: Number,
         totalPrice: Number,
-        bookingStatus: {
+        status: {
           type: String,
-          enum: ["PENDING", "CONFIRMED", "CANCELLED", "REFUNDED"],
-          default: "PENDING",
-        },
-
-        paymentStatus: {
-          type: String,
-          enum: ["PENDING", "PAID", "FAILED", "REFUNDED"],
           default: "PENDING",
         },
         bookedAt: {

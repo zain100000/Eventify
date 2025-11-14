@@ -217,29 +217,28 @@
 .no-messages-found {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   padding: 60px 24px;
+  background: linear-gradient(135deg, var(--primary), rgba(153, 32, 32, 0.9));
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(153, 32, 32, 0.15);
   text-align: center;
-  color: var(--info-dark);
-  border-radius: 16px;
-  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
 }
 
-#manage-chats .no-chats-found .empty-content {
+/* #manage-chats .no-chats-found .empty-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   animation: pulseScale 2s infinite;
-}
+} */
 
 #manage-chats .no-chats-found i,
 .no-messages-found i {
-  font-size: 64px;
-  color: var(--primary);
+  font-size: 48px;
+  color: var(--white);
   margin-bottom: 16px;
-  opacity: 0.7;
-  animation: bounce 3s infinite;
+  opacity: 0.9;
 }
 
 #manage-chats .no-chats-found p,
@@ -247,7 +246,7 @@
   font-size: 18px;
   font-weight: 500;
   margin: 0 0 8px 0;
-  color: var(--info-dark);
+  color: var(--white);
 }
 
 .search-hint {

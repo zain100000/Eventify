@@ -521,7 +521,8 @@ exports.updateEventStatus = async (req, res) => {
     if (!req.user || req.user.role !== "SUPERADMIN") {
       return res.status(403).json({
         success: false,
-        message: "Access denied. Only SUPERADMIN can update event status.",
+        message:
+          "Access denied. Only SUPERADMIN and ORGANIZER  update event status.",
       });
     }
 
@@ -605,7 +606,8 @@ exports.updateBookingStatus = async (req, res) => {
     ) {
       return res.status(403).json({
         success: false,
-        message: "Access denied. Only SUPERADMIN can update booking status.",
+        message:
+          "Access denied. Only SUPERADMIN and ORGANIZER can update booking status.",
       });
     }
 
@@ -759,7 +761,8 @@ exports.getAllBookings = async (req, res) => {
     if (!req.user || !["ORGANIZER", "SUPERADMIN"].includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: "Access denied. Only Admins or Superadmins can view bookings.",
+        message:
+          "Access denied. Only Admins or Superadmins and ORGANIZER  view bookings.",
       });
     }
 

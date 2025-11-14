@@ -159,28 +159,18 @@ const BookingDetails = () => {
         <div className="section-container">
           <h3 className="section-title">Ticket Details</h3>
           <div className="details-table">
-            <div className="detail-row">
-              <div className="detail-label">Ticket Type</div>
-              <div className="detail-value">{booking.ticketType || "N/A"}</div>
-              <div className="detail-label">Quantity</div>
-              <div className="detail-value">{booking.quantity || "N/A"}</div>
-            </div>
-            <div className="detail-row">
-              <div className="detail-label">Total Price</div>
-              <div className="detail-value">
-                {booking.totalPrice || "N/A"} PKR
-              </div>
-            </div>
-            <div className="detail-row">
-              <div className="detail-label">Payment Gateway</div>
-              <div className="detail-value">
-                {booking.meta?.mockPaymentGateway || "N/A"}
-              </div>
-              <div className="detail-label">Payment ID</div>
-              <div className="detail-value">
-                {booking.meta?.mockPaymentId || "N/A"}
-              </div>
-            </div>
+            {booking?.eventId?.ticketConfig?.ticketTypes?.map(
+              (ticket, index) => (
+                <div className="detail-row" key={index}>
+                  <div className="detail-label">Ticket Type</div>
+                  <div className="detail-value">{ticket.name}</div>
+                  <div className="detail-label">Quantity</div>
+                  <div className="detail-value">{ticket.quantity}</div>
+                  <div className="detail-label">Price</div>
+                  <div className="detail-value">{ticket.price} PKR</div>
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>

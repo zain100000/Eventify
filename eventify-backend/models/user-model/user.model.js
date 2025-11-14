@@ -83,6 +83,17 @@ const userSchema = new mongoose.Schema(
           ref: "Organizer",
           required: true,
         },
+        bookingStatus: {
+          type: String,
+          enum: ["PENDING", "CONFIRMED", "CANCELLED", "REFUNDED"],
+          default: "PENDING",
+        },
+
+        paymentStatus: {
+          type: String,
+          enum: ["PENDING", "PAID", "FAILED", "REFUNDED"],
+          default: "PENDING",
+        },
         createdAt: {
           type: Date,
           default: Date.now,

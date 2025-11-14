@@ -22,7 +22,7 @@ export const updateBookingStatus = createAsyncThunk(
 
     try {
       const response = await axios.patch(
-        `${BACKEND_API_URL}/organizer/update-booking-status/${bookingId}`,
+        `${BACKEND_API_URL}/super-admin/ticket/update-booking-status/${bookingId}`,
         body,
         {
           headers: { Authorization: `Bearer ${token}` },
