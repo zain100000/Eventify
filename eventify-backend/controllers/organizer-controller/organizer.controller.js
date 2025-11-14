@@ -249,6 +249,12 @@ exports.getOrganizerById = async (req, res) => {
         path: "bookedEvents.eventId",
         model: "Event", // Make sure this matches your Event model name
         select: "-__v", // Exclude version key, add other fields to exclude if needed
+      })
+      .populate({
+        path: "bookedBy.user",
+        model: "User", // Make sure this matches your User model name
+        select:
+          "-password -loginAttempts -lockUntil -sessionId -passwordResetToken -passwordResetExpires", // Exclude sensitive fields
       });
 
     if (!organizer) {

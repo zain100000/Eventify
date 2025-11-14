@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import "../../../styles/global.styles.css";
 import "./Bookings.css";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllBookings,
-  updateBookingStatus,
-} from "../../../redux/slices/ticket-booking.slice";
+
 import InputField from "../../../utilities/InputField/InputField.utility";
 import Loader from "../../../utilities/Loader/Loader.utility";
 import Modal from "../../../utilities/Modal/Modal.utlity";
@@ -15,7 +12,8 @@ import { useNavigate } from "react-router-dom";
 const Bookings = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const bookings = useSelector((state) => state.bookings.bookings);
+
+  const authUser = useSelector((state) => state.auth.user); // ✅ Use auth slice user
 
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -31,18 +29,22 @@ const Bookings = () => {
       .finally(() => setLoading(false));
   }, [dispatch]);
 
+  /** Filter Bookings */
   const filteredBookings = (Array.isArray(bookings) ? bookings : []).filter(
     (b) =>
-      (b.user?.userName &&
-        b.user.userName.toLowerCase().includes(search.toLowerCase())) ||
+      (authUser?.userName &&
+        authUser.userName.toLowerCase().includes(search.toLowerCase())) ||
       (b.event?.title &&
         b.event.title.toLowerCase().includes(search.toLowerCase()))
   );
 
   const handleSearch = (e) => setSearch(e.target.value);
 
-  const handleViewDetails = (b) =>
-    navigate(`/super-admin/bookings/${b._id}`, { state: { booking: b } });
+  const handleViewDetail = (b) => {
+    navigate(`/super-admin/bookings/manage-bookings/booking-details/${b._id}`, {
+      state: { booking: b },
+    });
+  };
 
   /** Booking Status Helpers */
   const getNextBookingStatuses = (current) => {
@@ -110,6 +112,7 @@ const Bookings = () => {
             status,
           })
         ).unwrap();
+
         toast.success(`Payment status updated to ${status}`);
         dispatch({
           type: "bookings/setBookings",
@@ -127,16 +130,11 @@ const Bookings = () => {
     }
   };
 
-  const handleViewDetail = (b) => {
-    navigate(`/super-admin/bookings/manage-bookings/booking-details/${b._id}`, {
-      state: { booking: b },
-    });
-  };
-
   return (
     <section id="bookings">
       <div className="bookings-container">
         <h2 className="bookings-title">Bookings List</h2>
+
         <div className="bookings-header">
           <InputField
             type="text"
@@ -165,15 +163,23 @@ const Bookings = () => {
                   <th style={{ textAlign: "center" }}>Actions</th>
                 </tr>
               </thead>
+
               <tbody>
                 {filteredBookings.map((b) => (
                   <tr key={b._id}>
-                    <td>#{b.user?._id ? b.user._id.slice(-6) : "N/A"}</td>
-                    <td>{b.user?.userName || "N/A"}</td>
+                    {/* BID -> Taken from auth user */}
+                    <td>#{authUser?._id ? authUser._id.slice(-6) : "N/A"}</td>
+
+                    {/* User Name -> Auth user */}
+                    <td>{authUser?.userName || "N/A"}</td>
+
+                    {/* Event Title */}
                     <td>{b.event?.title || "N/A"}</td>
+
                     <td>{b.ticketType || "N/A"}</td>
                     <td>{b.bookingStatus || "N/A"}</td>
                     <td>{b.paymentStatus || "N/A"}</td>
+
                     <td className="actions">
                       <button
                         className="action-btn view-detail-btn"
@@ -181,6 +187,7 @@ const Bookings = () => {
                       >
                         <i className="fas fa-eye"></i>
                       </button>
+
                       <button
                         className="action-btn status-change-btn"
                         onClick={() => {
@@ -190,6 +197,7 @@ const Bookings = () => {
                       >
                         <i className="fas fa-sync-alt"></i>
                       </button>
+
                       <button
                         className="action-btn payment-change-btn"
                         onClick={() => {

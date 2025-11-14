@@ -186,6 +186,7 @@ const Events = () => {
             <table className="events-table">
               <thead>
                 <tr className="table-header-row">
+                  <th>EID</th>
                   <th>Title</th>
                   <th>Category</th>
                   <th>Status</th>
@@ -195,6 +196,7 @@ const Events = () => {
               <tbody>
                 {filteredEvents.map((e) => (
                   <tr key={e._id}>
+                    <td>#{e._id.substring(18, 24).toUpperCase()}</td>
                     <td>{e.title}</td>
                     <td>{e.category || "N/A"}</td>
                     <td>

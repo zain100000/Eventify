@@ -9,6 +9,8 @@ const EventDetails = () => {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  console.log("EVENTSS", event);
+
   useEffect(() => {
     setTimeout(() => {
       setEvent(location.state?.event || null);
@@ -166,12 +168,16 @@ const EventDetails = () => {
           <div className="organizer-table">
             <div className="organizer-header">
               <div className="organizer-header-cell">Profile Picture</div>
+              <div className="organizer-header-cell">Profile Picture</div>
               <div className="organizer-header-cell">Organizer Name</div>
               <div className="organizer-header-cell">Email</div>
               <div className="organizer-header-cell">Services</div>
             </div>
 
             <div className="organizer-row">
+                <div className="organizer-cell organizer-profile-picture">
+                #{event.organizer?._id.substring(18, 24).toUpperCase()}
+              </div>
               <div className="organizer-cell organizer-profile-picture">
                 <img
                   src={
@@ -199,61 +205,40 @@ const EventDetails = () => {
           </div>
         </div>
 
-        {/* Organized Events - Events Created by User */}
-        <div className="user-events-container">
-          <h3 className="user-events-title">Created Events</h3>
-          <div className="events-table">
-            <div className="events-header">
-              <div className="header-cell">Event</div>
-              <div className="header-cell">Date</div>
-              <div className="header-cell">Venue</div>
-              <div className="header-cell">Ticket Types</div>
-              <div className="header-cell">Total Capacity</div>
+        {/* 🔹 User Information Section - Horizontal Table Layout */}
+        <div className="organizer-details-container">
+          <h3 className="organizer-title">Event Creator Details</h3>
+          <div className="organizer-table">
+            <div className="organizer-header">
+              <div className="organizer-header-cell">UID</div>
+              <div className="organizer-header-cell">Profile Picture</div>
+              <div className="organizer-header-cell">User Name</div>
+              <div className="organizer-header-cell">Email</div>
             </div>
 
-            {user.organizedEvents?.length > 0 ? (
-              user.organizedEvents.map((organizerEvent, index) => {
-                const event = organizerEvent.eventId;
-
-                // Calculate total tickets and ticket types
-                const totalTickets =
-                  event?.ticketConfig?.ticketTypes?.reduce(
-                    (sum, ticket) => sum + ticket.quantity,
-                    0
-                  ) || 0;
-
-                const ticketTypes =
-                  event?.ticketConfig?.ticketTypes
-                    ?.map((t) => `${t.name} (${t.quantity})`)
-                    .join(", ") || "No tickets";
-
-                return (
-                  <div key={event?._id || index} className="events-row">
-                    <div className="events-cell">
-                      {event?.title || `Event ${index + 1}`}
-                    </div>
-                    <div className="events-cell">
-                      {event?.dateTime?.start
-                        ? new Date(event.dateTime.start).toLocaleDateString()
-                        : "Date not set"}
-                    </div>
-                    <div className="events-cell">
-                      {event?.venue?.name || "Venue not set"}
-                    </div>
-                    <div className="events-cell">{ticketTypes}</div>
-                    <div className="events-cell">
-                      {totalTickets.toLocaleString()}
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="events-row">
-                <div className="events-cell" colSpan="6">
-                  <span className="no-data">No events created yet</span>
-                </div>
+            <div className="organizer-row">
+              <div className="organizer-cell organizer-profile-picture">
+                #{event.bookedBy?.user?._id.substring(18, 24).toUpperCase()}
               </div>
-            )}
+              <div className="organizer-cell organizer-profile-picture">
+                <img
+                  src={
+                    event.bookedBy?.user?.profilePicture ||
+                    event.bookedBy?.user?.profilePicture ||
+                    "/default-avatar.png"
+                  }
+                  alt={event.bookedBy?.user?.userName || "User"}
+                  className="organizer-avatar"
+                  onError={(e) => (e.target.src = "/default-avatar.png")}
+                />
+              </div>
+              <div className="organizer-cell organizer-name">
+                {event.bookedBy?.user?.userName || "N/A"}
+              </div>
+              <div className="organizer-cell organizer-email">
+                {event.bookedBy?.user?.email || "N/A"}
+              </div>
+            </div>
           </div>
         </div>
       </div>
