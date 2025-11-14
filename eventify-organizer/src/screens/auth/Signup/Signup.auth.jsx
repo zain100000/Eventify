@@ -6,7 +6,7 @@ import Logo from "../../../assets/logo/logo.png";
 import InputField from "../../../utilities/InputField/InputField.utility";
 import Button from "../../../utilities/Button/Button.utility";
 import { validateEmail } from "../../../utilities/Validations/Validation.utility";
-import imgPlaceholder from "../../../assets/placeholders/img-placeholder.png";
+import imgPlaceholder from "../../../assets/placeHolders/img-placeholder.png";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { register } from "../../../redux/slices/auth.slice";
