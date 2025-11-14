@@ -35,7 +35,34 @@ const Sidebar = () => {
               <i className="fas fa-home"></i>
             </div>
             <span>Dashboard</span>
-          </NavLink>          
+          </NavLink>
+
+          {/* Chats */}
+
+          <NavLink
+            to="/organizer/chats/manage-chats"
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
+          >
+            <div className="sidebar-icon">
+              <i className="fas fa-users"></i>
+            </div>
+            <span>Manage Chats</span>
+          </NavLink>
+
+          {/* Bookings */}
+          <NavLink
+            to="/organizer/bookings/manage-bookings"
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
+          >
+            <div className="sidebar-icon">
+              <i className="fas fa-users"></i>
+            </div>
+            <span>Manage Bookings</span>
+          </NavLink>
         </li>
       </ul>
     </section>

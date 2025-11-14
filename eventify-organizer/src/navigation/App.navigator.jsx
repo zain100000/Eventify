@@ -31,6 +31,8 @@ import NotFound from "../screens/not-found/Not-Found";
 
 // Dashboard Screens
 import Dashboard from "../screens/dashboard/Main.dashboard";
+import Chats from "../screens/manage-chats/chats/Chats";
+import Bookings from "../screens/manage-bookings/bookings/Bookings";
 
 /**
  * Application routing configuration.
@@ -60,6 +62,12 @@ const AppNavigator = () => {
 
         {/* Dashboard Routes */}
         <Route path="dashboard" element={<Dashboard />} />
+
+        {/* Chat Routes */}
+        <Route path="chats/manage-chats" element={<Chats />} />
+
+        {/* Booking Routes */}
+        <Route path="bookings/manage-bookings" element={<Bookings />} />
       </Route>
 
       {/* Not Found Route */}

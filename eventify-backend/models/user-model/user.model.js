@@ -73,8 +73,20 @@ const userSchema = new mongoose.Schema(
      */
     organizedEvents: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Event",
+        eventId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Event",
+          required: true,
+        },
+        organizerId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Organizer",
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
 

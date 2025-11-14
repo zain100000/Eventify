@@ -61,6 +61,10 @@ const organizerSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Event",
         },
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
         ticketType: String,
         quantity: Number,
         totalPrice: Number,

@@ -5,6 +5,7 @@
 
 const Event = require("../../models/event-model/event.model");
 const User = require("../../models/user-model/user.model");
+const Organizer = require("../../models/organizer-model/organizer.model");
 const {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -41,7 +42,7 @@ exports.createEvent = async (req, res) => {
       isFeatured,
       primaryIndex,
       captions,
-      organizerId, // <-- NEW: user selects an organizer
+      organizerId,
     } = req.body;
 
     if (
@@ -58,7 +59,6 @@ exports.createEvent = async (req, res) => {
         .json({ success: false, message: "Missing required fields" });
     }
 
-    const Organizer = require("../../models/organizer-model/organizer.model");
     const organizer = await Organizer.findById(organizerId);
     if (!organizer) {
       return res
@@ -82,6 +82,13 @@ exports.createEvent = async (req, res) => {
         .json({ success: false, message: "Invalid date format" });
     }
 
+    if (startDate >= endDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Start date must be before end date",
+      });
+    }
+
     const cleanedCategory = category.trim().toUpperCase();
     const cleanedType = type.trim().toUpperCase();
     const cleanedStatus = (status || "DRAFT").trim().toUpperCase();
@@ -89,6 +96,17 @@ exports.createEvent = async (req, res) => {
     const parsedIsRegistrationRequired =
       parsedTicketConfig?.isRegistrationRequired === "true" ||
       parsedTicketConfig?.isRegistrationRequired === true;
+
+    // Process ticket types with numeric conversion
+    let processedTicketTypes = [];
+    if (parsedTicketConfig?.ticketTypes?.length) {
+      processedTicketTypes = parsedTicketConfig.ticketTypes.map((ticket) => ({
+        name: ticket.name?.trim(),
+        price: Number(ticket.price) || 0,
+        quantity: Number(ticket.quantity) || 0,
+        sold: Number(ticket.sold) || 0,
+      }));
+    }
 
     // Upload event images
     let eventImage = [];
@@ -126,26 +144,67 @@ exports.createEvent = async (req, res) => {
         city: parsedVenue.city?.trim(),
       },
       dateTime: { start: startDate, end: endDate },
+      organizer: organizer._id,
+      eventImage,
       ticketConfig: {
-        ...parsedTicketConfig,
         isRegistrationRequired: parsedIsRegistrationRequired,
+        maxAttendees: parsedTicketConfig?.maxAttendees
+          ? Number(parsedTicketConfig.maxAttendees)
+          : undefined,
+        ticketTypes: processedTicketTypes,
       },
       status: cleanedStatus,
       isFeatured: parsedIsFeatured,
-      eventImage,
-      organizer: organizer._id, // <-- assign selected organizer
-      createdBy: req.user._id,
+      bookedBy: {
+        userType: req.user.role,
+        user: req.user.id,
+      },
     });
 
     await newEvent.save();
 
     // Update organizer's bookedEvents array
-    organizer.bookedEvents.push({
-      eventId: newEvent._id,
-      userId: req.user._id,
-      status: "PENDING",
-    });
-    await organizer.save();
+    if (organizer.bookedEvents) {
+      organizer.bookedEvents.push({
+        eventId: newEvent._id,
+        userId: req.user._id,
+        status: "PENDING",
+      });
+      await organizer.save();
+    }
+
+    // === FIXED BLOCK: Add event to User.organizedEvents ===
+    if (req.user.role === "USER") {
+      try {
+        // Safe fallback for _id/id mismatch
+        const userId = req.user._id || req.user.id;
+
+        console.log("🔍 USER ID USED FOR UPDATE:", userId);
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+          console.error("❌ User not found when updating organizedEvents");
+        } else {
+          console.log("🟢 Found User. Updating organizedEvents...");
+
+          user.organizedEvents.push({
+            eventId: newEvent._id,
+            organizerId: organizer._id,
+            createdAt: new Date(),
+          });
+
+          // make sure mongo notices nested array update
+          user.markModified("organizedEvents");
+
+          await user.save();
+
+          console.log("✅ organizedEvents successfully updated!");
+        }
+      } catch (err) {
+        console.error("❌ Error updating user's organizedEvents:", err);
+      }
+    }
 
     // Optional: send email notifications to all users
     const registeredUsers = await User.find({ email: { $exists: true } });
@@ -209,27 +268,10 @@ exports.getAllEvents = async (req, res) => {
           {
             path: "bookedEvents.eventId",
             model: "Event",
-            populate: [
-              {
-                path: "organizer",
-                populate: {
-                  path: "organizerProfile",
-                  model: "OrganizerProfile",
-                },
-              },
-              {
-                path: "venue",
-              },
-              {
-                path: "ticketConfig.ticketTypes",
-              },
-              {
-                path: "eventImage",
-              },
-            ],
           },
         ],
       })
+      .select("-bookedBy")
       .sort({ "dateTime.start": 1 });
 
     res.status(200).json({
@@ -249,11 +291,71 @@ exports.getAllEvents = async (req, res) => {
 };
 
 /**
+ * @description Controller to get events organized by a specific user
+ * @route GET /api/event/my-organized-events
+ * @access USER
+ */
+exports.getMyOrganizedEvents = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "USER") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only users can access their organized events.",
+      });
+    }
+
+    const user = await User.findById(req.user._id)
+      .populate({
+        path: "organizedEvents.eventId",
+        populate: [
+          {
+            path: "organizer",
+            populate: {
+              path: "organizerProfile",
+              model: "OrganizerProfile",
+            },
+          },
+          {
+            path: "venue",
+          },
+          {
+            path: "ticketConfig.ticketTypes",
+          },
+          {
+            path: "eventImage",
+          },
+        ],
+      })
+      .populate("organizedEvents.organizerId");
+
+    if (!user || !user.organizedEvents) {
+      return res.status(200).json({
+        success: true,
+        message: "No organized events found",
+        organizedEvents: [],
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Organized events fetched successfully",
+      organizedEvents: user.organizedEvents,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching organized events:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+/**
  * @description Controller to update an existing event
  * @route PATCH /api/event/update-event/:eventId
  * @access SUPERADMIN
  */
-
 exports.updateEvent = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "SUPERADMIN") {
@@ -281,7 +383,7 @@ exports.updateEvent = async (req, res) => {
     if (req.body.category !== undefined) updates.category = req.body.category;
     if (req.body.type !== undefined) updates.type = req.body.type;
     if (req.body.organizerId !== undefined)
-      updates.organizerId = req.body.organizerId;
+      updates.organizer = req.body.organizerId;
 
     // Venue
     if (req.body.venue) {
@@ -330,27 +432,39 @@ exports.updateEvent = async (req, res) => {
           ? JSON.parse(req.body.ticketConfig)
           : req.body.ticketConfig;
 
-      // Ensure ticket types have numeric values
+      updates.ticketConfig = {};
+
+      if (parsedTicketConfig.isRegistrationRequired !== undefined) {
+        updates.ticketConfig.isRegistrationRequired =
+          parsedTicketConfig.isRegistrationRequired === "true" ||
+          parsedTicketConfig.isRegistrationRequired === true;
+      }
+
+      if (parsedTicketConfig.maxAttendees !== undefined) {
+        updates.ticketConfig.maxAttendees = Number(
+          parsedTicketConfig.maxAttendees
+        );
+      }
+
+      // Process ticket types with numeric conversion
       if (parsedTicketConfig.ticketTypes?.length) {
-        parsedTicketConfig.ticketTypes = parsedTicketConfig.ticketTypes.map(
+        updates.ticketConfig.ticketTypes = parsedTicketConfig.ticketTypes.map(
           (t) => ({
-            ...t,
-            price: Number(t.price),
-            quantity: Number(t.quantity),
+            name: t.name?.trim(),
+            price: Number(t.price) || 0,
+            quantity: Number(t.quantity) || 0,
             sold: t.sold ? Number(t.sold) : 0,
           })
         );
       }
-
-      updates.ticketConfig = parsedTicketConfig;
     }
 
     // Featured, captions, primaryIndex
     if (req.body.isFeatured !== undefined)
-      updates.isFeatured = req.body.isFeatured;
-    if (req.body.captions !== undefined) updates.captions = req.body.captions;
-    if (req.body.primaryIndex !== undefined)
-      updates.primaryIndex = Number(req.body.primaryIndex);
+      updates.isFeatured =
+        req.body.isFeatured === "true" || req.body.isFeatured === true;
+    if (req.body.status !== undefined)
+      updates.status = req.body.status.trim().toUpperCase();
 
     // Event images
     if (req.files?.eventImage) {
@@ -401,7 +515,7 @@ exports.updateEvent = async (req, res) => {
     const updatedEvent = await Event.findByIdAndUpdate(eventId, updates, {
       new: true,
       runValidators: true,
-    });
+    }).select("-bookedBy.user");
 
     res.status(200).json({
       success: true,
@@ -441,6 +555,20 @@ exports.deleteEvent = async (req, res) => {
         message: "Event not found!",
       });
     }
+
+    // Remove event from user's organizedEvents if it exists
+    if (event.bookedBy.userType === "USER") {
+      await User.updateOne(
+        { _id: event.bookedBy.user },
+        { $pull: { organizedEvents: { eventId: event._id } } }
+      );
+    }
+
+    // Remove event from organizer's bookedEvents
+    await Organizer.updateOne(
+      { _id: event.organizer },
+      { $pull: { bookedEvents: { eventId: event._id } } }
+    );
 
     if (event.eventImage && event.eventImage.length > 0) {
       for (const img of event.eventImage) {

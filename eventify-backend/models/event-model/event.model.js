@@ -74,6 +74,16 @@ const eventSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    bookedBy: {
+      userType: {
+        type: String,
+        enum: ["SUPERADMIN", "USER", "ORGANIZER"],
+      },
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: "bookedBy.userType",
+      },
+    },
   },
   {
     timestamps: true,

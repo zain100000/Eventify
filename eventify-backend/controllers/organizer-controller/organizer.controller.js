@@ -243,9 +243,13 @@ exports.loginOrganizer = async (req, res) => {
 exports.getOrganizerById = async (req, res) => {
   try {
     const { organizerId } = req.params;
-    const organizer = await Organizer.findById(organizerId).select(
-      "-password -__v -passwordResetToken -passwordResetExpires"
-    );
+    const organizer = await Organizer.findById(organizerId)
+      .select("-password -__v -passwordResetToken -passwordResetExpires")
+      .populate({
+        path: "bookedEvents.eventId",
+        model: "Event", // Make sure this matches your Event model name
+        select: "-__v", // Exclude version key, add other fields to exclude if needed
+      });
 
     if (!organizer) {
       return res
@@ -253,7 +257,11 @@ exports.getOrganizerById = async (req, res) => {
         .json({ success: false, message: "Organizer not found" });
     }
 
-    res.status(200).json({ success: true, organizer });
+    res.status(200).json({
+      success: true,
+      message: "Organizer fetched successfully",
+      organizer,
+    });
   } catch (error) {
     console.error("❌ Error fetching organizer:", error);
     res.status(500).json({ success: false, message: "Server error" });
