@@ -243,18 +243,25 @@ exports.loginOrganizer = async (req, res) => {
 exports.getOrganizerById = async (req, res) => {
   try {
     const { organizerId } = req.params;
+
     const organizer = await Organizer.findById(organizerId)
       .select("-password -__v -passwordResetToken -passwordResetExpires")
       .populate({
         path: "bookedEvents.eventId",
-        model: "Event", // Make sure this matches your Event model name
-        select: "-__v", // Exclude version key, add other fields to exclude if needed
-      })
-      .populate({
-        path: "bookedBy.user",
-        model: "User", // Make sure this matches your User model name
-        select:
-          "-password -loginAttempts -lockUntil -sessionId -passwordResetToken -passwordResetExpires", // Exclude sensitive fields
+        model: "Event",
+        select: "-__v",
+        populate: [
+          {
+            path: "bookedBy.user", // populate the user inside bookedBy
+            model: "User",
+            select: "-password -__v -role", // exclude sensitive fields
+          },
+          {
+            path: "organizer", // optional: populate event organizer
+            model: "Organizer",
+            select: "userName email organizerProfile",
+          },
+        ],
       });
 
     if (!organizer) {
