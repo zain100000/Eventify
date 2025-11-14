@@ -37,20 +37,6 @@ const Sidebar = () => {
             <span>Dashboard</span>
           </NavLink>
 
-          {/* Chats */}
-
-          <NavLink
-            to="/organizer/chats/manage-chats"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? "active" : ""}`
-            }
-          >
-            <div className="sidebar-icon">
-              <i className="fas fa-users"></i>
-            </div>
-            <span>Manage Chats</span>
-          </NavLink>
-
           {/* Bookings */}
           <NavLink
             to="/organizer/bookings/manage-bookings"
@@ -62,6 +48,19 @@ const Sidebar = () => {
               <i className="fas fa-users"></i>
             </div>
             <span>Manage Bookings</span>
+          </NavLink>
+
+          {/* Chats */}
+          <NavLink
+            to="/organizer/chats/manage-chats"
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
+          >
+            <div className="sidebar-icon">
+              <i className="fas fa-users"></i>
+            </div>
+            <span>Manage Chats</span>
           </NavLink>
         </li>
       </ul>

@@ -33,6 +33,7 @@ import NotFound from "../screens/not-found/Not-Found";
 import Dashboard from "../screens/dashboard/Main.dashboard";
 import Chats from "../screens/manage-chats/chats/Chats";
 import Bookings from "../screens/manage-bookings/bookings/Bookings";
+import BookingDetails from "../screens/manage-bookings/booking-details/Booking.details";
 
 /**
  * Application routing configuration.
@@ -68,6 +69,10 @@ const AppNavigator = () => {
 
         {/* Booking Routes */}
         <Route path="bookings/manage-bookings" element={<Bookings />} />
+        <Route
+          path="bookings/manage-bookings/booking-details/:id"
+          element={<BookingDetails />}
+        />
       </Route>
 
       {/* Not Found Route */}
