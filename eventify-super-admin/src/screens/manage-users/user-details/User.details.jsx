@@ -9,6 +9,8 @@ const UserDetails = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  console.log("USERRR", user)
+
   useEffect(() => {
     setTimeout(() => {
       setUser(location.state?.user || null);
@@ -166,7 +168,7 @@ const UserDetails = () => {
           </div>
         </div>
 
-        {/* Organized Events */}
+        {/* Organized Events - Events Created by User */}
         <div className="user-events-container">
           <h3 className="user-events-title">Created Events</h3>
           <div className="events-table">
@@ -174,33 +176,52 @@ const UserDetails = () => {
               <div className="header-cell">Event</div>
               <div className="header-cell">Date</div>
               <div className="header-cell">Venue</div>
-              <div className="header-cell">Ticket Type</div>
-              <div className="header-cell">Quantity</div>
-              <div className="header-cell">Booking Status</div>
+              <div className="header-cell">Ticket Types</div>
+              <div className="header-cell">Total Capacity</div>
+              <div className="header-cell">Status</div>
             </div>
 
-            {user.bookedEvents?.length > 0 ? (
-              user.bookedEvents.map((booking, index) => {
-                const event = booking.eventId;
+            {user.organizedEvents?.length > 0 ? (
+              user.organizedEvents.map((organizerEvent, index) => {
+                const event = organizerEvent.eventId;
+
+                // Calculate total tickets and ticket types
+                const totalTickets =
+                  event?.ticketConfig?.ticketTypes?.reduce(
+                    (sum, ticket) => sum + ticket.quantity,
+                    0
+                  ) || 0;
+
+                const ticketTypes =
+                  event?.ticketConfig?.ticketTypes
+                    ?.map((t) => `${t.name} (${t.quantity})`)
+                    .join(", ") || "No tickets";
+
                 return (
-                  <div key={index} className="events-row">
+                  <div key={event?._id || index} className="events-row">
                     <div className="events-cell">
                       {event?.title || `Event ${index + 1}`}
                     </div>
                     <div className="events-cell">
                       {event?.dateTime?.start
                         ? new Date(event.dateTime.start).toLocaleDateString()
-                        : "N/A"}
+                        : "Date not set"}
                     </div>
                     <div className="events-cell">
-                      {event?.venue?.name || "N/A"}
+                      {event?.venue?.name || "Venue not set"}
+                    </div>
+                    <div className="events-cell">{ticketTypes}</div>
+                    <div className="events-cell">
+                      {totalTickets.toLocaleString()}
                     </div>
                     <div className="events-cell">
-                      {booking.ticketType || "N/A"}
-                    </div>
-                    <div className="events-cell">{booking.quantity || 0}</div>
-                    <div className="events-cell">
-                      {booking.bookingStatus || "N/A"}
+                      <span
+                        className={`status-badge status-${
+                          event?.status?.toLowerCase() || "unknown"
+                        }`}
+                      >
+                        {event?.status || "DRAFT"}
+                      </span>
                     </div>
                   </div>
                 );
@@ -208,7 +229,7 @@ const UserDetails = () => {
             ) : (
               <div className="events-row">
                 <div className="events-cell" colSpan="6">
-                  <span className="no-data">No booked events</span>
+                  <span className="no-data">No events created yet</span>
                 </div>
               </div>
             )}

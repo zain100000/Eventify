@@ -838,14 +838,14 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.find()
       .select("-password -__v -passwordResetToken -passwordResetExpires")
       .populate({
-        path: "bookedEvents.eventId",
-        model: "Event",
-        populate: [
-          { path: "venue" }, // populate venue details
-          { path: "organizer", select: "userName email" }, // organizer info if needed
-          { path: "ticketConfig.ticketTypes" }, // ticket types
-          { path: "eventImage" }, // event images
-        ],
+        path: "organizedEvents.eventId",
+        model: "Event", // Make sure this matches your Event model name
+        select: "-__v", // Exclude version key, add other fields to exclude if needed
+      })
+      .populate({
+        path: "organizedEvents.organizerId",
+        model: "Organizer", // Make sure this matches your Event model name
+        select: "-__v", // Exclude version key, add other fields to exclude if needed
       })
       .sort({ createdAt: -1 });
 
