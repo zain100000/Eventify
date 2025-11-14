@@ -292,9 +292,18 @@ exports.getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const user = await User.findById(userId).select(
-      "-password -__v -refreshToken"
-    );
+    const user = await User.findById(userId)
+      .select("-password -__v -refreshToken")
+      .populate({
+        path: "organizedEvents.eventId",
+        model: "Event", // Make sure this matches your Event model name
+        select: "-__v", // Exclude version key, add other fields to exclude if needed
+      })
+        .populate({
+        path: "organizedEvents.organizerId",
+        model: "Organizer", // Make sure this matches your Event model name
+        select: "-__v", // Exclude version key, add other fields to exclude if needed
+      });
     if (!user) {
       return res.status(404).json({
         success: false,

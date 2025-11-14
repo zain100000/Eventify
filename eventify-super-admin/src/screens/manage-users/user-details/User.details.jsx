@@ -165,6 +165,55 @@ const UserDetails = () => {
             )}
           </div>
         </div>
+
+        {/* Organized Events */}
+        <div className="user-events-container">
+          <h3 className="user-events-title">Created Events</h3>
+          <div className="events-table">
+            <div className="events-header">
+              <div className="header-cell">Event</div>
+              <div className="header-cell">Date</div>
+              <div className="header-cell">Venue</div>
+              <div className="header-cell">Ticket Type</div>
+              <div className="header-cell">Quantity</div>
+              <div className="header-cell">Booking Status</div>
+            </div>
+
+            {user.bookedEvents?.length > 0 ? (
+              user.bookedEvents.map((booking, index) => {
+                const event = booking.eventId;
+                return (
+                  <div key={index} className="events-row">
+                    <div className="events-cell">
+                      {event?.title || `Event ${index + 1}`}
+                    </div>
+                    <div className="events-cell">
+                      {event?.dateTime?.start
+                        ? new Date(event.dateTime.start).toLocaleDateString()
+                        : "N/A"}
+                    </div>
+                    <div className="events-cell">
+                      {event?.venue?.name || "N/A"}
+                    </div>
+                    <div className="events-cell">
+                      {booking.ticketType || "N/A"}
+                    </div>
+                    <div className="events-cell">{booking.quantity || 0}</div>
+                    <div className="events-cell">
+                      {booking.bookingStatus || "N/A"}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="events-row">
+                <div className="events-cell" colSpan="6">
+                  <span className="no-data">No booked events</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
