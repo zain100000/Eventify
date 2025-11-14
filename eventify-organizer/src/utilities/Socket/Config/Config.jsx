@@ -17,8 +17,8 @@ const CONFIG = {
    * The base URL for the WebSocket server connection
    * @type {string}
    */
-  SOCKET_URL: "http://localhost:8000/",
-  // SOCKET_URL: "https://eventify-backend-zf0y.onrender.com",
+  // SOCKET_URL: "http://localhost:8000/",
+  SOCKET_URL: "https://eventify-backend-tan.vercel.app",
 };
 
 export default CONFIG;
