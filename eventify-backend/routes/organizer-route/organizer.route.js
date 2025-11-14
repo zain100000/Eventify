@@ -90,4 +90,12 @@ router.post(
  */
 router.post("/verify-reset-token/:token", organizerController.verifyResetToken);
 
+/**
+ * @description Route to update booking status.
+ */
+router.post(
+  "/update-booking-status/:bookingId",
+  organizerController.updateBookingStatusByOrganizer
+);
+
 module.exports = router;

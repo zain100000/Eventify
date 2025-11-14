@@ -8,6 +8,7 @@ import Loader from "../../../utilities/Loader/Loader.utility";
 import Modal from "../../../utilities/Modal/Modal.utlity";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { updateBookingStatus } from "../../../../../eventify-super-admin/src/redux/slices/ticket-booking.slice";
 
 const Bookings = () => {
   const dispatch = useDispatch();
@@ -54,9 +55,35 @@ const Bookings = () => {
     }
   };
 
-  const changeBookingStatus = (status) => {
-    toast.success(`Booking status updated to ${status}`);
-    setBookingModalOpen(false);
+  const changeBookingStatus = async (status, reason = "", notes = "") => {
+    setLoadingAction(status);
+    try {
+      if (selectedBooking?._id) {
+        await dispatch(
+          updateBookingStatus({
+            bookingId: selectedBooking._id,
+            type: "booking",
+            bookingStatus: status,
+            reason,
+            notes,
+          })
+        ).unwrap();
+
+        toast.success(`Booking status updated to ${status}`);
+        dispatch({
+          type: "bookings/setBookings",
+          payload: bookings.map((b) =>
+            b._id === selectedBooking._id ? { ...b, bookingStatus: status } : b
+          ),
+        });
+      }
+    } catch {
+      toast.error("Failed to update booking status");
+    } finally {
+      setLoadingAction(null);
+      setBookingModalOpen(false);
+      setSelectedBooking(null);
+    }
   };
 
   const bookings = organizer?.bookedEvents || [];
