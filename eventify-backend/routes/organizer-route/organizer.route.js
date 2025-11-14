@@ -93,7 +93,7 @@ router.post("/verify-reset-token/:token", organizerController.verifyResetToken);
 /**
  * @description Route to update booking status.
  */
-router.post(
+router.patch(
   "/update-booking-status/:bookingId",
   organizerController.updateBookingStatusByOrganizer
 );
