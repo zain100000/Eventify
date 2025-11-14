@@ -271,7 +271,12 @@ exports.getAllEvents = async (req, res) => {
           },
         ],
       })
-      .select("-bookedBy")
+      .populate({
+        path: "bookedBy.user",
+        model: "User", // Make sure this matches your User model name
+        select:
+          "-password -loginAttempts -lockUntil -sessionId -passwordResetToken -passwordResetExpires", // Exclude sensitive fields
+      })
       .sort({ "dateTime.start": 1 });
 
     res.status(200).json({

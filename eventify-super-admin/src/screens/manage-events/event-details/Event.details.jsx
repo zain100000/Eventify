@@ -198,6 +198,64 @@ const EventDetails = () => {
             </div>
           </div>
         </div>
+
+        {/* Organized Events - Events Created by User */}
+        <div className="user-events-container">
+          <h3 className="user-events-title">Created Events</h3>
+          <div className="events-table">
+            <div className="events-header">
+              <div className="header-cell">Event</div>
+              <div className="header-cell">Date</div>
+              <div className="header-cell">Venue</div>
+              <div className="header-cell">Ticket Types</div>
+              <div className="header-cell">Total Capacity</div>
+            </div>
+
+            {user.organizedEvents?.length > 0 ? (
+              user.organizedEvents.map((organizerEvent, index) => {
+                const event = organizerEvent.eventId;
+
+                // Calculate total tickets and ticket types
+                const totalTickets =
+                  event?.ticketConfig?.ticketTypes?.reduce(
+                    (sum, ticket) => sum + ticket.quantity,
+                    0
+                  ) || 0;
+
+                const ticketTypes =
+                  event?.ticketConfig?.ticketTypes
+                    ?.map((t) => `${t.name} (${t.quantity})`)
+                    .join(", ") || "No tickets";
+
+                return (
+                  <div key={event?._id || index} className="events-row">
+                    <div className="events-cell">
+                      {event?.title || `Event ${index + 1}`}
+                    </div>
+                    <div className="events-cell">
+                      {event?.dateTime?.start
+                        ? new Date(event.dateTime.start).toLocaleDateString()
+                        : "Date not set"}
+                    </div>
+                    <div className="events-cell">
+                      {event?.venue?.name || "Venue not set"}
+                    </div>
+                    <div className="events-cell">{ticketTypes}</div>
+                    <div className="events-cell">
+                      {totalTickets.toLocaleString()}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="events-row">
+                <div className="events-cell" colSpan="6">
+                  <span className="no-data">No events created yet</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );

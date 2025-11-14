@@ -9,7 +9,7 @@ const UserDetails = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  console.log("USERRR", user)
+  console.log("USERRR", user);
 
   useEffect(() => {
     setTimeout(() => {
@@ -178,7 +178,6 @@ const UserDetails = () => {
               <div className="header-cell">Venue</div>
               <div className="header-cell">Ticket Types</div>
               <div className="header-cell">Total Capacity</div>
-              <div className="header-cell">Status</div>
             </div>
 
             {user.organizedEvents?.length > 0 ? (
@@ -213,15 +212,6 @@ const UserDetails = () => {
                     <div className="events-cell">{ticketTypes}</div>
                     <div className="events-cell">
                       {totalTickets.toLocaleString()}
-                    </div>
-                    <div className="events-cell">
-                      <span
-                        className={`status-badge status-${
-                          event?.status?.toLowerCase() || "unknown"
-                        }`}
-                      >
-                        {event?.status || "DRAFT"}
-                      </span>
                     </div>
                   </div>
                 );
