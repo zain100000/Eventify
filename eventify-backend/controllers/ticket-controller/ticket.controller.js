@@ -91,6 +91,7 @@ exports.bookTicket = async (req, res) => {
             bookedEvents: {
               bookingId: booking[0]._id,
               eventId: event._id,
+              user: user.id,
               ticketType: ticket.name,
               quantity,
               totalPrice,
