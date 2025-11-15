@@ -5,6 +5,7 @@ import {combineReducers} from 'redux';
 import authReducer from '../slices/authSlice';
 import userReducer from '../slices/userSlice';
 import eventReducer from '../slices/eventSlice';
+import bookingReducer from '../slices/ticketBookingSlice';
 
 const persistConfig = {
   key: 'root',
@@ -16,6 +17,8 @@ const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
   events: eventReducer,
+  bookings: bookingReducer,
+  bookings: bookingReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -21,6 +21,8 @@ import AllEvents from '../screens/dashboard/allEvents/AllEvents';
 import AllCategories from '../screens/dashboard/allCategories/AllCategories';
 import CategoryEvents from '../screens/dashboard/categoryEvents/CategoryEvents';
 import EventDetails from '../screens/eventModule/EventDetails';
+import TicketBooking from '../screens/ticketBooking/TicketBooking';
+import MyBookings from '../screens/profileModule/profileSubScreens/MyBookings';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,13 +56,13 @@ const AppNavigator = () => {
           )}
         </Stack.Screen>
 
-         <Stack.Screen name="All_Events">
+        <Stack.Screen name="All_Events">
           {props => (
             <AllEvents {...props} setStatusBarColor={setStatusBarColor} />
           )}
         </Stack.Screen>
 
-         <Stack.Screen name="Event_Details">
+        <Stack.Screen name="Event_Details">
           {props => (
             <EventDetails {...props} setStatusBarColor={setStatusBarColor} />
           )}
@@ -72,9 +74,15 @@ const AppNavigator = () => {
           )}
         </Stack.Screen>
 
-         <Stack.Screen name="Category_Events">
+        <Stack.Screen name="Category_Events">
           {props => (
             <CategoryEvents {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen name="Buy_Ticket">
+          {props => (
+            <TicketBooking {...props} setStatusBarColor={setStatusBarColor} />
           )}
         </Stack.Screen>
 
@@ -97,6 +105,11 @@ const AppNavigator = () => {
               {...props}
               setStatusBarColor={setStatusBarColor}
             />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="My_Bookings">
+          {props => (
+            <MyBookings {...props} setStatusBarColor={setStatusBarColor} />
           )}
         </Stack.Screen>
       </Stack.Navigator>

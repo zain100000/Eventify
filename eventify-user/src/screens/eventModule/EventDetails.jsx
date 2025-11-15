@@ -85,7 +85,7 @@ const EventDetails = () => {
       console.log(`Ticket ${ticketType.name} is sold out!`);
       return;
     }
-    navigation.navigate('BuyTicket', {event, ticketType});
+    navigation.navigate('Buy_Ticket', {event, ticketType});
   };
 
   const renderTicketType = ({item}) => {
