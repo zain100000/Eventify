@@ -7,7 +7,7 @@ export const theme = {
     error: '#f00221',
     white: '#ffffff',
     dark: '#000000',
-    gray: '#dde0e5',
+    gray: '#b2b7beff',
   },
 
   typography: {

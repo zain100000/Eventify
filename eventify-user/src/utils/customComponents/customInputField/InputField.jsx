@@ -65,7 +65,7 @@ const InputField = ({
             {
               marginHorizontal: width * 0.06,
               fontSize: width * 0.04,
-              fontFamily: theme.typography.fontFamilyRegular,
+              fontFamily: theme.typography.roboto.regular,
               color: theme.colors.primary,
             },
           ]}
@@ -79,7 +79,7 @@ const InputField = ({
             value={value}
             onChangeText={onChangeText}
             placeholder={placeholder}
-            placeholderTextColor={theme.colors.primary}
+            placeholderTextColor={theme.colors.gray}
             style={[
               globalStyles.input,
               styles.textInput,
@@ -118,6 +118,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderRadius: theme.borderRadius.large,
+    backgroundColor: theme.colors.white,
   },
 
   textInput: {

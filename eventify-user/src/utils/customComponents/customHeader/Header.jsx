@@ -7,8 +7,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {theme} from '../../../styles/theme';
 
 const {width, height} = Dimensions.get('screen');
@@ -18,8 +20,7 @@ const Header = ({
   logo,
   leftIcon,
   onPressLeft,
-  rightIcon,
-  onPressRight,
+  showSearchBar = false,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
@@ -43,17 +44,14 @@ const Header = ({
     <Animated.View
       style={[
         styles.headerContainer,
-        {
-          transform: [{scale: scaleAnim}],
-          opacity: fadeAnim,
-        },
+        {opacity: fadeAnim, transform: [{scale: scaleAnim}]},
       ]}>
       <LinearGradient
-        colors={[theme.colors.primary, theme.colors.tertiary]}
+        colors={[theme.colors.primary, theme.colors.secondary]}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}
         style={styles.gradientBackground}>
-        <View style={styles.leftGroup}>
+        <View style={styles.topRow}>
           {leftIcon && (
             <TouchableOpacity onPress={onPressLeft} activeOpacity={0.8}>
               {React.isValidElement(leftIcon) ? (
@@ -66,29 +64,32 @@ const Header = ({
               )}
             </TouchableOpacity>
           )}
+
+          <View style={styles.logoTitleGroup}>
+            {logo && <Image source={logo} style={styles.logo} />}
+            <Text style={[styles.title, {color: theme.colors.white}]}>
+              {title}
+            </Text>
+          </View>
         </View>
 
-        <View style={styles.logoTitleGroup}>
-          {logo && <Image source={logo} style={styles.logo} />}
-          <Text style={[styles.title, {color: theme.colors.white}]}>
-            {title}
-          </Text>
-        </View>
-
-        <View style={styles.rightGroup}>
-          {rightIcon && (
-            <TouchableOpacity onPress={onPressRight} activeOpacity={0.8}>
-              {React.isValidElement(rightIcon) ? (
-                rightIcon
-              ) : (
-                <Image
-                  source={rightIcon}
-                  style={[styles.icon, {tintColor: theme.colors.white}]}
-                />
-              )}
-            </TouchableOpacity>
-          )}
-        </View>
+        {showSearchBar && (
+          <View style={styles.searchBarContainer}>
+            <View style={styles.searchBar}>
+              <MaterialCommunityIcons
+                name="magnify"
+                size={width * 0.05}
+                color="#fff"
+                style={{marginRight: width * 0.03}}
+              />
+              <TextInput
+                placeholder="Search"
+                placeholderTextColor="#fff"
+                style={styles.searchInput}
+              />
+            </View>
+          </View>
+        )}
       </LinearGradient>
     </Animated.View>
   );
@@ -99,54 +100,60 @@ export default Header;
 const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
-    borderBottomLeftRadius: theme.borderRadius.large,
-    borderBottomRightRadius: theme.borderRadius.large,
-    overflow: 'hidden',
-    ...theme.elevation.depth2,
   },
 
   gradientBackground: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: width * 0.05,
-    paddingVertical: height * 0.018,
+    paddingTop: height * 0.018,
+    paddingBottom: height * 0.015,
   },
 
-  leftGroup: {
+  topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: width * 0.03,
+    justifyContent: 'flex-start',
   },
 
   logoTitleGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: width * 0.025,
-    flex: 1,
     marginLeft: width * 0.04,
   },
 
-  rightGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: width * 0.03,
-  },
-
   logo: {
-    width: width * 0.08,
-    height: width * 0.08,
+    width: width * 0.3,
+    height: height * 0.04,
     resizeMode: 'contain',
   },
 
   title: {
     fontSize: theme.typography.fontSize.lg,
-    fontFamily: theme.typography.poppins.semiBold,
+    fontFamily: theme.typography.roboto.semiBold,
   },
 
   icon: {
     width: width * 0.06,
     height: width * 0.06,
     resizeMode: 'contain',
+  },
+
+  searchBarContainer: {
+    width: '100%',
+    marginTop: height * 0.015,
+  },
+
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: width * 0.04,
+    borderRadius: width * 0.07,
+    height: height * 0.055,
+  },
+
+  searchInput: {
+    flex: 1,
+    color: theme.colors.white,
+    fontSize: theme.typography.fontSize.sm,
   },
 });

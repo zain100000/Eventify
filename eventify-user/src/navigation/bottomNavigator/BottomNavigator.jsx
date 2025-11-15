@@ -1,34 +1,41 @@
 import React, {useEffect, useRef} from 'react';
 import {Image, StyleSheet, Dimensions, Animated} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import LinearGradient from 'react-native-linear-gradient';
 import {theme} from '../../styles/theme';
-import Home from '../../screens/dashBoard/Home';
+
+import Home from '../../screens/dashboard/Main';
 import Profile from '../../screens/profileModule/Profile';
 
 const Tab = createBottomTabNavigator();
 const {width, height} = Dimensions.get('screen');
 
 const AnimatedTabIcon = ({focused, source}) => {
-  const scaleValue = useRef(new Animated.Value(1)).current;
+  const scale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.spring(scaleValue, {
+    Animated.spring(scale, {
       toValue: focused ? 1.2 : 1,
-      friction: 4,
+      friction: 5,
       useNativeDriver: true,
     }).start();
-  }, [focused, scaleValue]);
+  }, [focused]);
 
   return (
-    <Animated.View
-      style={[styles.imageContainer, {transform: [{scale: scaleValue}]}]}>
+    <Animated.View style={[styles.iconWrapper, {transform: [{scale}]}]}>
+      {focused && (
+        <LinearGradient
+          colors={[theme.colors.primary, theme.colors.secondary]}
+          style={styles.iconGlow}
+          start={{x: 0.2, y: 0.2}}
+          end={{x: 0.8, y: 0.8}}
+        />
+      )}
       <Image
         source={source}
         style={[
-          styles.image,
-          {
-            tintColor: focused ? theme.colors.primary : theme.colors.gray,
-          },
+          styles.icon,
+          {tintColor: focused ? theme.colors.white : theme.colors.gray},
         ]}
       />
     </Animated.View>
@@ -41,21 +48,18 @@ const BottomNavigator = () => {
       initialRouteName="Home"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.colors.primary,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: theme.colors.white,
         tabBarInactiveTintColor: theme.colors.gray,
         tabBarStyle: [
           styles.tabBar,
-          {
-            backgroundColor: theme.colors.white,
-          },
+          {backgroundColor: theme.colors.primary, ...theme.elevation.depth3},
         ],
-        tabBarLabelStyle: styles.tabBarLabel,
       }}>
       <Tab.Screen
         name="Home"
         component={Home}
         options={{
-          tabBarLabel: 'Home',
           tabBarIcon: ({focused}) => (
             <AnimatedTabIcon
               focused={focused}
@@ -73,7 +77,6 @@ const BottomNavigator = () => {
         name="Profile"
         component={Profile}
         options={{
-          tabBarLabel: 'Profile',
           tabBarIcon: ({focused}) => (
             <AnimatedTabIcon
               focused={focused}
@@ -94,30 +97,35 @@ export default BottomNavigator;
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: height * 0.074,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: -3},
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    position: 'absolute',
+    left: width * 0.04,
+    right: width * 0.04,
+    height: height * 0.085,
+    paddingTop: height * 0.02,
     borderTopWidth: 0,
+    borderTopLeftRadius: theme.borderRadius.large,
+    borderTopRightRadius: theme.borderRadius.large,
   },
 
-  tabBarLabel: {
-    fontSize: theme.typography.fontSize.md,
-    fontFamily: theme.typography.roboto.semiBold,
-    marginTop: height * 0.009,
-  },
-
-  imageContainer: {
-    marginTop: height * 0.01,
+  iconWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
 
-  image: {
+  icon: {
     width: width * 0.07,
     height: height * 0.04,
     resizeMode: 'contain',
+    zIndex: 10,
+  },
+
+  iconGlow: {
+    position: 'absolute',
+    width: width * 0.12,
+    height: width * 0.12,
+    borderRadius: theme.borderRadius.circle,
+    opacity: 0.35,
+    zIndex: 1,
   },
 });

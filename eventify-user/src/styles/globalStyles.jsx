@@ -94,9 +94,9 @@ export const globalStyles = StyleSheet.create({
 
   input: {
     backgroundColor: theme.colors.white,
-    borderWidth: moderateScale(1),
-    borderColor: theme.colors.gray,
-    borderRadius: moderateScale(theme.borderRadius.medium),
+    borderWidth: moderateScale(2),
+    borderColor: theme.colors.primary,
+    borderRadius: moderateScale(theme.borderRadius.large),
     paddingVertical: verticalScale(theme.spacing(1.6)),
     paddingHorizontal: scale(theme.spacing(4)),
     fontSize: moderateScale(theme.typography.fontSize.md),

@@ -79,14 +79,6 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    const existingPhone = await User.findOne({ phone });
-    if (existingPhone) {
-      return res.status(409).json({
-        success: false,
-        message: "User with this phone already exists",
-      });
-    }
-
     let profilePictureUrl = null;
     if (req.files?.profilePicture) {
       const uploadResult = await uploadToCloudinary(
@@ -299,7 +291,7 @@ exports.getUserById = async (req, res) => {
         model: "Event", // Make sure this matches your Event model name
         select: "-__v", // Exclude version key, add other fields to exclude if needed
       })
-        .populate({
+      .populate({
         path: "organizedEvents.organizerId",
         model: "Organizer", // Make sure this matches your Event model name
         select: "-__v", // Exclude version key, add other fields to exclude if needed

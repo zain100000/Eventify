@@ -9,8 +9,6 @@ import Splash from '../screens/shared/Splash';
 // Auth Screens
 import Signin from '../screens/auth/Signin';
 import Signup from '../screens/auth/Signup';
-
-// Main (Dashboard) Screens
 import BottomNavigator from './bottomNavigator/BottomNavigator';
 
 const Stack = createNativeStackNavigator();
@@ -38,11 +36,10 @@ const AppNavigator = () => {
           {props => <Signup {...props} setStatusBarColor={setStatusBarColor} />}
         </Stack.Screen>
 
-        {/* Main App Routes */}
+        
+        {/* Dashboard Routes */}
         <Stack.Screen name="Main">
-          {props => (
-            <BottomNavigator {...props} setStatusBarColor={setStatusBarColor} />
-          )}
+          {props => <BottomNavigator {...props} setStatusBarColor={setStatusBarColor} />}
         </Stack.Screen>
       </Stack.Navigator>
     </>

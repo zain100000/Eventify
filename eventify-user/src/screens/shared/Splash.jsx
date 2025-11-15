@@ -24,33 +24,33 @@ const Splash = () => {
     StatusBar.setBackgroundColor(statusBarColor);
   }, []);
 
-  // useEffect(() => {
-  //   const checkSession = async () => {
-  //     try {
-  //       await new Promise(resolve => setTimeout(resolve, 1500));
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-  //       const token = await AsyncStorage.getItem('authToken');
-  //       console.log(token);
+        const token = await AsyncStorage.getItem('authToken');
+        console.log(token);
 
-  //       if (token) {
-  //         navigation.reset({
-  //           index: 0,
-  //           routes: [{name: 'Main'}],
-  //         });
-  //       } else {
-  //         navigation.reset({
-  //           index: 0,
-  //           routes: [{name: 'OnBoard'}],
-  //         });
-  //       }
-  //     } catch (error) {
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+        if (token) {
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Main'}],
+          });
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Signin'}],
+          });
+        }
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   checkSession();
-  // }, []);
+    checkSession();
+  }, []);
 
   return (
     <SafeAreaView style={[globalStyles.container, styles.primaryContainer]}>
@@ -66,18 +66,6 @@ const Splash = () => {
             style={styles.Img}
           />
         </Animatable.View>
-        <Animatable.Text
-          animation="fadeInUp"
-          duration={1500}
-          style={[styles.splashTitle]}>
-          MediLink
-        </Animatable.Text>
-        <Animatable.Text
-          animation="fadeInUp"
-          duration={2000}
-          style={[styles.splashDescription]}>
-          Doctor Appointment Booking App
-        </Animatable.Text>
       </View>
     </SafeAreaView>
   );
@@ -106,22 +94,8 @@ const styles = StyleSheet.create({
   },
 
   Img: {
-    width: width * 0.24,
-    height: width * 0.24,
-  },
-
-  splashTitle: {
-    fontSize: theme.typography.fontSize.xxl,
-    fontFamily: theme.typography.roboto.semiBold,
-    textAlign: 'center',
-    marginTop: height * 0.02,
-  },
-
-  splashDescription: {
-    fontSize: theme.typography.fontSize.lg,
-    textAlign: 'center',
-    marginTop: height * 0.01,
-    fontWeight: '600',
-    fontStyle: 'italic',
+    width: width * 2,
+    height: height * 0.06,
+    resizeMode: 'contain',
   },
 });
