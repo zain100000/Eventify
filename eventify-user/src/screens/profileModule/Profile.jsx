@@ -10,7 +10,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {theme} from '../../styles/theme';
 import Header from '../../utils/customComponents/customHeader/Header';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {deleteAccount, getUser} from '../../redux/slices/userSlice';
 import ProfileHeaderCard from '../../utils/customComponents/customCards/profileScreenCards/ProfileHeaderCard';
@@ -46,11 +46,13 @@ const Profile = () => {
     });
   };
 
-  useEffect(() => {
-    if (user && user.id) {
-      dispatch(getUser(user.id));
-    }
-  }, [dispatch, user]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user && user.id) {
+        dispatch(getUser(user.id));
+      }
+    }, [user]),
+  );
 
   const handleLogoutModal = () => {
     setShowLogoutModal(true);

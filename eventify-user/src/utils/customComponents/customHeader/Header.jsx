@@ -21,6 +21,8 @@ const Header = ({
   leftIcon,
   onPressLeft,
   showSearchBar = false,
+  searchText = '',
+  onSearch = () => {},
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
@@ -86,6 +88,8 @@ const Header = ({
                 placeholder="Search"
                 placeholderTextColor="#fff"
                 style={styles.searchInput}
+                value={searchText}
+                onChangeText={onSearch}
               />
             </View>
           </View>
@@ -101,47 +105,39 @@ const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
   },
-
   gradientBackground: {
     paddingHorizontal: width * 0.05,
     paddingTop: height * 0.018,
     paddingBottom: height * 0.015,
   },
-
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-
   logoTitleGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: width * 0.04,
   },
-
   logo: {
     width: width * 0.3,
     height: height * 0.04,
     resizeMode: 'contain',
   },
-
   title: {
     fontSize: theme.typography.fontSize.lg,
     fontFamily: theme.typography.roboto.semiBold,
   },
-
   icon: {
     width: width * 0.06,
     height: width * 0.06,
     resizeMode: 'contain',
   },
-
   searchBarContainer: {
     width: '100%',
     marginTop: height * 0.015,
   },
-
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -150,7 +146,6 @@ const styles = StyleSheet.create({
     borderRadius: width * 0.07,
     height: height * 0.055,
   },
-
   searchInput: {
     flex: 1,
     color: theme.colors.white,

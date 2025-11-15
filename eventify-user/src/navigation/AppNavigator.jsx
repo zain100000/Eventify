@@ -17,6 +17,10 @@ import BottomNavigator from './bottomNavigator/BottomNavigator';
 import Account from '../screens/profileModule/profileSubScreens/Account';
 import PrivacyPolicy from '../screens/profileModule/profileSubScreens/PrivacyPolicy';
 import TermsAndConditions from '../screens/profileModule/profileSubScreens/AppUsage';
+import AllEvents from '../screens/dashboard/allEvents/AllEvents';
+import AllCategories from '../screens/dashboard/allCategories/AllCategories';
+import CategoryEvents from '../screens/dashboard/categoryEvents/CategoryEvents';
+import EventDetails from '../screens/eventModule/EventDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +51,30 @@ const AppNavigator = () => {
         <Stack.Screen name="Main">
           {props => (
             <BottomNavigator {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+         <Stack.Screen name="All_Events">
+          {props => (
+            <AllEvents {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+         <Stack.Screen name="Event_Details">
+          {props => (
+            <EventDetails {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen name="All_Categories">
+          {props => (
+            <AllCategories {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+         <Stack.Screen name="Category_Events">
+          {props => (
+            <CategoryEvents {...props} setStatusBarColor={setStatusBarColor} />
           )}
         </Stack.Screen>
 

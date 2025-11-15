@@ -40,6 +40,8 @@ const Account = () => {
   const [photoURL, setPhotoURL] = useState('');
   const [name, setName] = useState(user?.userName || '');
   const [address, setAddress] = useState(user?.address || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+
   const [newImageURL, setNewImageURL] = useState('');
   const [isEdited, setIsEdited] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,6 +52,7 @@ const Account = () => {
 
   const [nameError, setNameError] = useState('');
   const [addressError, setAddressError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
   useEffect(() => {
     StatusBar.setBackgroundColor(theme.colors.primary);
@@ -74,12 +77,22 @@ const Account = () => {
   };
 
   useEffect(() => {
-    const hasErrors = !!nameError || !!addressError || !name || !address;
+    const hasErrors =
+      !!nameError ||
+      !!addressError ||
+      !!phoneError ||
+      !name ||
+      !address ||
+      !phone;
+
     setIsEdited(
       !hasErrors &&
-        (name !== user?.userName || address !== user?.address || newImageURL),
+        (name !== user?.userName ||
+          address !== user?.address ||
+          phone !== user?.phone ||
+          newImageURL),
     );
-  }, [name, address, nameError, addressError, newImageURL]);
+  }, [name, address, phone, nameError, addressError, phoneError, newImageURL]);
 
   const handleNameChange = value => {
     setName(value);
@@ -89,6 +102,18 @@ const Account = () => {
   const handleAddressChange = value => {
     setAddress(value);
     setAddressError(value.trim() ? '' : 'Address is required');
+  };
+
+  const handlePhoneChange = value => {
+    setPhone(value);
+
+    if (!value.trim()) {
+      setPhoneError('Phone number is required');
+    } else if (!/^\d{11}$/.test(value)) {
+      setPhoneError('Phone number must be 10 digits');
+    } else {
+      setPhoneError('');
+    }
   };
 
   const handleImageUpload = url => {
@@ -102,6 +127,8 @@ const Account = () => {
     const formData = new FormData();
     if (name) formData.append('userName', name);
     if (address) formData.append('address', address);
+    if (phone) formData.append('phone', phone);
+
     if (newImageURL) {
       formData.append('profilePicture', {
         uri: newImageURL,
@@ -204,6 +231,27 @@ const Account = () => {
                   <Text style={globalStyles.textError}>{addressError}</Text>
                 )}
               </View>
+
+              <View style={styles.InputFieldContainer}>
+                <Text style={styles.label}>Phone</Text>
+                <InputField
+                  placeholder="Enter phone number"
+                  value={phone}
+                  keyboardType="number-pad"
+                  onChangeText={handlePhoneChange}
+                  leftIcon={
+                    <Feather
+                      name="phone"
+                      size={width * 0.044}
+                      color={theme.colors.primary}
+                    />
+                  }
+                />
+                {phoneError && (
+                  <Text style={globalStyles.textError}>{phoneError}</Text>
+                )}
+              </View>
+
               <View style={styles.btnContainer}>
                 <Button
                   title="Update Profile"

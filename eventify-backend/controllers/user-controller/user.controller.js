@@ -286,6 +286,11 @@ exports.getUserById = async (req, res) => {
 
     const user = await User.findById(userId)
       .select("-password -__v -refreshToken")
+       .populate({
+        path: "bookedEvents.eventId",
+        model: "Event", // Make sure this matches your Event model name
+        select: "-__v", // Exclude version key, add other fields to exclude if needed
+      })      
       .populate({
         path: "organizedEvents.eventId",
         model: "Event", // Make sure this matches your Event model name
