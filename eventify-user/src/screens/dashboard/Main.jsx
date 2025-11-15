@@ -45,10 +45,7 @@ const Home = () => {
       colors={[theme.colors.primary, theme.colors.tertiary]}
       style={globalStyles.container}>
       <View style={styles.headerContainer}>
-        <Header
-          title="Home"
-          showSearchBar
-        />
+        <Header title="Home" showSearchBar />
       </View>
 
       {isLoading ? (

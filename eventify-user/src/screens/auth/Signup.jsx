@@ -107,7 +107,7 @@ const Signup = () => {
           setPassword('');
 
           setTimeout(() => {
-            navigation.replace('Main');
+            navigation.replace('Signin');
           }, 2000);
 
           return;

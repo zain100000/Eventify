@@ -9,7 +9,14 @@ import Splash from '../screens/shared/Splash';
 // Auth Screens
 import Signin from '../screens/auth/Signin';
 import Signup from '../screens/auth/Signup';
+
+// Bottom Navigator
 import BottomNavigator from './bottomNavigator/BottomNavigator';
+
+// Profile & Legal Screens
+import Account from '../screens/profileModule/profileSubScreens/Account';
+import PrivacyPolicy from '../screens/profileModule/profileSubScreens/PrivacyPolicy';
+import TermsAndConditions from '../screens/profileModule/profileSubScreens/AppUsage';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,10 +43,33 @@ const AppNavigator = () => {
           {props => <Signup {...props} setStatusBarColor={setStatusBarColor} />}
         </Stack.Screen>
 
-        
         {/* Dashboard Routes */}
         <Stack.Screen name="Main">
-          {props => <BottomNavigator {...props} setStatusBarColor={setStatusBarColor} />}
+          {props => (
+            <BottomNavigator {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+        {/* Legal & Info Screens */}
+        <Stack.Screen name="My_Account">
+          {props => (
+            <Account {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen name="Privacy_Policy">
+          {props => (
+            <PrivacyPolicy {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen name="App_Usage">
+          {props => (
+            <TermsAndConditions
+              {...props}
+              setStatusBarColor={setStatusBarColor}
+            />
+          )}
         </Stack.Screen>
       </Stack.Navigator>
     </>
